@@ -11,36 +11,63 @@
 </section>
 
 <section class="container section-padding">
-    <div class="filter-bar">
-        <span>Filter by:</span>
-        <a href="{% url 'doctor_list' %}" class="filter-pill {% if not selected_dept %}active{% endif %}">All</a>
-        {% for dept in specialities %}
-        <a href="?speciality={{ dept.slug }}"
-            class="filter-pill {% if selected_dept == dept.slug %}active{% endif %}">{{ dept.name }}</a>
-        {% endfor %}
+    <div class="premium-filter-wrapper mb-5">
+        <div class="filter-header mb-3">
+            <span class="sub-title">Speciality Filter</span>
+            <h3>Browse by Department</h3>
+        </div>
+        <div class="premium-filter-scroll">
+            <a href="{% url 'doctor_list' %}" class="filter-card {% if not selected_dept %}active{% endif %}">
+                <div class="filter-icon">
+                    <i class="fas fa-th-large"></i>
+                </div>
+                <div class="filter-details">
+                    <span class="filter-name">All Departments</span>
+                    <span class="filter-count">{{ total_doctors }} Specialists</span>
+                </div>
+            </a>
+            {% for dept in specialities %}
+            <a href="?speciality={{ dept.slug }}" class="filter-card {% if selected_dept == dept.slug %}active{% endif %}">
+                <div class="filter-icon">
+                    <i class="{{ dept.get_icon_class }}"></i>
+                </div>
+                <div class="filter-details">
+                    <span class="filter-name">{{ dept.name }}</span>
+                    <span class="filter-count">{{ dept.doctor_count }} Specialists</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
     </div>
 
     <div class="grid-4">
         {% for doc in doctors %}
-        <div class="doctor-card">
-            <div class="doc-img">
+        <div class="doctor-card-modern">
+            <div class="doc-img-wrapper">
                 {% if doc.photo %}
                 <img src="{{ doc.photo.url }}" alt="{{ doc.name }}">
                 {% else %}
-                <div class="placeholder-doc-img"></div>
+                <div class="placeholder-doc-monogram">{{ doc.get_monogram }}</div>
                 {% endif %}
+                <div class="doc-badges">
+                    <span class="badge-exp">{{ doc.experience_years }} YRS</span>
+                </div>
             </div>
-            <div class="doc-info">
+            <div class="doc-body">
+                <span class="dept-label">{{ doc.department.name }}</span>
                 <h4>{{ doc.name }}</h4>
-                <a href="{% url 'department_detail' doc.department.slug %}" class="speciality">{{ doc.department.name
-                    }}</a>
-                <p class="qualification">{{ doc.qualifications }}</p>
-                <a href="{% url 'doctor_detail' doc.slug %}" class="btn-primary"
-                    style="width:100%; display:block; text-align:center;">View Profile</a>
+                <p class="qual">{{ doc.qualifications }}</p>
+                <div class="doc-footer">
+                    <a href="{% url 'doctor_detail' doc.slug %}" class="btn-modern-primary">View Profile</a>
+                </div>
             </div>
         </div>
         {% empty %}
-        <p>No doctors found matching your criteria.</p>
+        <div class="empty-state text-center py-5 w-100">
+            <i class="fas fa-search-minus fa-3x mb-3 text-muted"></i>
+            <h4>No doctors found matching your criteria.</h4>
+            <a href="{% url 'doctor_list' %}" class="btn btn-outline-primary mt-3">Reset Filters</a>
+        </div>
         {% endfor %}
     </div>
 </section>
@@ -50,34 +77,223 @@
 {% block extra_css %}
 <style>
     .page-header {
-        background: var(--primary-color);
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), linear-gradient(135deg, var(--primary-color) 0%, #1e3a8a 100%);
         color: white;
-        padding: 40px 0;
+        padding: 40px 0; /* Reduced from 80px */
         text-align: center;
-    }
-
-    .filter-bar {
+        border-bottom-left-radius: 40px;
+        border-bottom-right-radius: 40px;
         margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://www.transparenttextures.com/patterns/cubes.png');
+        opacity: 0.05;
+        pointer-events: none;
+    }
+
+    .page-header h1 {
+        font-size: 2.2rem; /* Reduced from 3.5rem */
+        font-weight: 800;
+        letter-spacing: -1px;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        margin: 0;
+        color: #ffffff;
+    }
+
+    .premium-filter-scroll {
         display: flex;
+        flex-wrap: wrap; /* Changed from overflow-x: auto to wrap */
         gap: 10px;
-        flex-wrap: wrap;
+        padding: 5px 0 20px;
+    }
+
+    .filter-card {
+        flex: 0 0 auto;
+        display: flex;
         align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+        min-width: 160px; /* Reduced from 180px */
     }
 
-    .filter-pill {
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        text-decoration: none;
-        color: #555;
-        transition: all 0.2s;
+    .filter-icon {
+        width: 32px;
+        height: 32px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        transition: all 0.3s;
     }
 
-    .filter-pill.active,
-    .filter-pill:hover {
+    .filter-name {
+        display: block;
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 0.8rem; /* Reduced from 0.85rem */
+        white-space: nowrap;
+    }
+
+    .filter-count {
+        display: block;
+        font-size: 0.65rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .filter-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-card.active {
         background: var(--primary-color);
-        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 6px 15px rgba(30, 58, 138, 0.15);
+    }
+
+    .filter-card.active .filter-icon {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    .filter-card.active .filter-name {
+        color: #ffffff;
+    }
+
+    .filter-card.active .filter-count {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Even More Compact Doctor Card */
+    .doctor-card-modern {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .doctor-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
         border-color: var(--primary-color);
     }
+
+    .doc-img-wrapper {
+        height: 180px; /* Reduced from 200px */
+        position: relative;
+        background: #f8fafc;
+        overflow: hidden;
+    }
+
+    .placeholder-doc-monogram {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+
+    .doc-badges {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    .badge-exp {
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(8px);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.6rem;
+        font-weight: 700;
+    }
+
+    .doc-body {
+        padding: 15px; /* Reduced from 18px */
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dept-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--secondary-color);
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .doc-body h4 {
+        font-size: 0.95rem; /* Reduced from 1.05rem */
+        margin-bottom: 2px;
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+    .qual {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 12px;
+        font-weight: 500;
+        line-height: 1.3;
+    }
+
+    .btn-modern-primary {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        background: #f8fafc;
+        color: var(--primary-color);
+        text-align: center;
+        text-decoration: none !important;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-modern-primary:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Reduced from 240px */
+        gap: 20px;
+    }
+</style>
 </style>
 {% endblock %}

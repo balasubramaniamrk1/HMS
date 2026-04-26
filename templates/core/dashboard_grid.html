@@ -5,280 +5,265 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block extra_css %}
-<style>
-    /* Dashboard Specific Styles */
-    .page-header {
-        margin-bottom: 30px;
-        color: var(--text-color);
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-top: 10px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Dashboard Icons Grid */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 30px;
-    }
-
-    .dash-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        text-decoration: none;
-        color: var(--text-color);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 20px 10px;
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .dash-item::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: 0.5s;
-    }
-
-    .dash-item:hover::before {
-        left: 100%;
-    }
-
-    .dash-item:hover {
-        transform: translateY(-8px) scale(1.05);
-        text-decoration: none;
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        border-color: rgba(255, 255, 255, 0.4);
-    }
-
-    .icon-circle {
-        width: 70px;
-        height: 70px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 15px;
-        font-size: 1.8rem;
-        color: white;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s;
-    }
-
-    .dash-item:hover .icon-circle {
-        transform: rotate(10deg) scale(1.1);
-    }
-
-    .dash-label {
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        line-height: 1.3;
-        letter-spacing: 0.5px;
-    }
-
-    /* Icon Gradients */
-    .icon-red {
-        background: linear-gradient(135deg, #ff416c, #ff4b2b);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 2px 4px rgba(255, 75, 43, 0.3));
-    }
-
-    .icon-blue {
-        background: linear-gradient(135deg, #2193b0, #6dd5ed);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 2px 4px rgba(33, 147, 176, 0.3));
-    }
-
-    .icon-green {
-        background: linear-gradient(135deg, #11998e, #38ef7d);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 2px 4px rgba(56, 239, 125, 0.3));
-    }
-
-    .icon-orange {
-        background: linear-gradient(135deg, #f12711, #f5af19);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 2px 4px rgba(245, 175, 25, 0.3));
-    }
-
-    .icon-teal {
-        background: linear-gradient(135deg, #1fa2ff, #12d8fa, #a6ffcb);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 2px 4px rgba(18, 216, 250, 0.3));
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/dashboard_enterprise.css' %}">
 {% endblock %}
 
 {% block content %}
-<h2 class="page-header">Dashboard</h2>
+<div class="enterprise-dashboard">
 
-<div class="dashboard-grid">
+    <!-- Unified Search -->
+    <div class="dashboard-search-wrapper" role="search">
+        <input type="text" class="search-field" placeholder="Search modules, features, or quick actions (Alt + S)..."
+            id="moduleSearch" aria-label="Search modules">
+    </div>
 
-    {% if user|has_group:"Doctors" or user.is_superuser or user|has_group:"Hospital Admins" %}
-    <a href="{% url 'doctor_console' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-calendar-alt icon-red"></i></div>
-        <span class="dash-label">Doctor Console</span>
-    </a>
-    {% endif %}
+    <!-- Clinical Section -->
+    <section class="dashboard-section" data-section="clinical">
+        <div class="section-band clinical">
+            <div class="band-info">
+                <i class="fas fa-stethoscope band-icon"></i>
+                <h3 class="section-title">Clinical Operations</h3>
+            </div>
+        </div>
+        <div class="section-grid">
+            {% if user|has_group:"Doctors" or user.is_superuser or user|has_group:"Hospital Admins" %}
+            <a href="{% url 'doctor_console' %}" class="module-card clinical">
+                <div class="icon-wrapper clinical"><i class="fas fa-user-md tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Doctor Console</span>
+                    <span class="module-subtitle">Manage appointments and records</span>
+                </div>
+            </a>
+            
+            <a href="{% url 'department_list' %}" class="module-card clinical">
+                <div class="icon-wrapper clinical"><i class="fas fa-building tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Departments</span>
+                    <span class="module-subtitle">Centers of Excellence</span>
+                </div>
+            </a>
+            {% endif %}
 
-    <a href="{% url 'book_appointment' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-calendar-check icon-red"></i></div>
-        <span class="dash-label">Appointment</span>
-    </a>
+            <a href="{% url 'book_appointment' %}" class="module-card clinical">
+                <div class="icon-wrapper clinical"><i class="fas fa-calendar-check tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Consultation</span>
+                    <span class="module-subtitle">Patient checkups and prescriptions</span>
+                </div>
+            </a>
 
-    {% if user|has_group:"Doctors" or user.is_superuser or user|has_group:"Hospital Admins" %}
-    <!-- Generic staff too -->
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-clipboard-list icon-orange"></i></div>
-        <span class="dash-label">Patient Registration</span>
-    </a>
-    {% endif %}
+            <a href="#" class="module-card clinical">
+                <div class="icon-wrapper clinical"><i class="fas fa-procedures tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">OPD Mgmt</span>
+                    <span class="module-subtitle">Outpatient department operations</span>
+                </div>
+            </a>
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-procedures icon-blue"></i></div>
-        <span class="dash-label">Outpatient Management</span>
-    </a>
+            <a href="#" class="module-card clinical">
+                <div class="icon-wrapper clinical"><i class="fas fa-user-nurse tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Nurse Station</span>
+                    <span class="module-subtitle">Ward management and tracking</span>
+                </div>
+            </a>
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-heartbeat icon-red"></i></div>
-        <span class="dash-label">Health Checkup</span>
-    </a>
+            <a href="#" class="module-card clinical">
+                <div class="icon-wrapper clinical"><i class="fas fa-cut tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Operation Theatre</span>
+                    <span class="module-subtitle">Surgery scheduling and logs</span>
+                </div>
+            </a>
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-flask icon-blue"></i></div>
-        <span class="dash-label">Laboratory</span>
-    </a>
+            <a href="{% url 'admissions:dashboard' %}" class="module-card clinical">
+                <div class="icon-wrapper clinical"><i class="fas fa-bed tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">IPD Admissions</span>
+                    <span class="module-subtitle">Inpatient and bed management</span>
+                </div>
+            </a>
+        </div>
+    </section>
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-x-ray icon-teal"></i></div>
-        <span class="dash-label">Radiology</span>
-    </a>
+    <!-- Diagnostics Section -->
+    <section class="dashboard-section" data-section="diagnostics">
+        <div class="section-band diagnostics">
+            <div class="band-info">
+                <i class="fas fa-microscope band-icon"></i>
+                <h3 class="section-title">Diagnostics & Labs</h3>
+            </div>
+        </div>
+        <div class="section-grid">
+            <a href="#" class="module-card diagnostics">
+                <div class="icon-wrapper diagnostics"><i class="fas fa-flask tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Laboratory</span>
+                    <span class="module-subtitle">Tests and result processing</span>
+                </div>
+            </a>
+            <a href="#" class="module-card diagnostics">
+                <div class="icon-wrapper diagnostics"><i class="fas fa-x-ray tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Radiology</span>
+                    <span class="module-subtitle">Imaging and report management</span>
+                </div>
+            </a>
+            <a href="#" class="module-card diagnostics">
+                <div class="icon-wrapper diagnostics"><i class="fas fa-tint tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Blood Bank</span>
+                    <span class="module-subtitle">Inventory and compatibility</span>
+                </div>
+            </a>
+            <a href="#" class="module-card diagnostics">
+                <div class="icon-wrapper diagnostics"><i class="fas fa-heartbeat tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Health Checkup</span>
+                    <span class="module-subtitle">Preventive screening packages</span>
+                </div>
+            </a>
+        </div>
+    </section>
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-bed icon-green"></i></div>
-        <span class="dash-label">Inpatient Management</span>
-    </a>
+    <!-- Revenue Cycle Section -->
+    <section class="dashboard-section" data-section="revenue">
+        <div class="section-band revenue">
+            <div class="band-info">
+                <i class="fas fa-hand-holding-usd band-icon"></i>
+                <h3 class="section-title">Revenue Cycle</h3>
+            </div>
+        </div>
+        <div class="section-grid">
+            {% if user|has_group:"Billing" or user.is_superuser or user|has_group:"Hospital Admins" %}
+            <a href="{% url 'billing:dashboard' %}" class="module-card revenue">
+                <div class="icon-wrapper revenue"><i class="fas fa-file-invoice-dollar tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Billing</span>
+                    <span class="module-subtitle">Invoices and payment tracking</span>
+                </div>
+            </a>
+            {% endif %}
 
-    {% if user|has_any_group:"Pharmacist,Inventory Managers" or user.is_superuser or user|has_group:"Hospital Admins" %}
-    <a href="{% url 'pharmacy:dashboard' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-pills icon-blue"></i></div>
-        <span class="dash-label">Pharmacy</span>
-    </a>
-    {% endif %}
+            {% if user|has_any_group:"Pharmacist,Inventory Managers" or user.is_superuser or user|has_group:"Hospital Admins" %}
+            <a href="{% url 'pharmacy:pos' %}" class="module-card revenue">
+                <div class="icon-wrapper revenue"><i class="fas fa-cash-register tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">POS Dispense</span>
+                    <span class="module-subtitle">Retail pharmacy point of sale</span>
+                </div>
+            </a>
+            {% endif %}
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-user-nurse icon-teal"></i></div>
-        <span class="dash-label">Nurse Station</span>
-    </a>
+            {% if user|has_group:"Hospital Admins" or user.is_superuser %}
+            <a href="{% url 'staff_mgmt:admin_dashboard' %}" class="module-card revenue">
+                <div class="icon-wrapper revenue"><i class="fas fa-chart-bar tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">MIS Reports</span>
+                    <span class="module-subtitle">Management analytics and data</span>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+    </section>
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-cut icon-red"></i></div>
-        <span class="dash-label">Operation Theatre</span>
-    </a>
+    <!-- Supply Chain Section -->
+    <section class="dashboard-section" data-section="supply">
+        <div class="section-band supply">
+            <div class="band-info">
+                <i class="fas fa-truck-loading band-icon"></i>
+                <h3 class="section-title">Supply Chain</h3>
+            </div>
+        </div>
+        <div class="section-grid">
+            {% if user|has_group:"Inventory Managers" or user.is_superuser or user|has_group:"Hospital Admins" %}
+            <a href="{% url 'inventory_dashboard' %}" class="module-card supply">
+                <div class="icon-wrapper supply"><i class="fas fa-boxes tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Inventory</span>
+                    <span class="module-subtitle">General store and asset tracking</span>
+                </div>
+            </a>
+            <a href="{% url 'pharmacy:stock_list' %}" class="module-card supply">
+                <div class="icon-wrapper supply"><i class="fas fa-cubes tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Stock</span>
+                    <span class="module-subtitle">Availability and stock ledger</span>
+                </div>
+            </a>
+            <a href="{% url 'pharmacy:purchase_order_list' %}" class="module-card supply">
+                <div class="icon-wrapper supply"><i class="fas fa-file-contract tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Purchase Orders</span>
+                    <span class="module-subtitle">Procurement and vendor orders</span>
+                </div>
+            </a>
+            <a href="{% url 'vendor_list' %}" class="module-card supply">
+                <div class="icon-wrapper supply"><i class="fas fa-truck tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Vendor Mgmt</span>
+                    <span class="module-subtitle">Supplier profiles and performance</span>
+                </div>
+            </a>
+            <a href="{% url 'amc_list' %}" class="module-card supply">
+                <div class="icon-wrapper supply"><i class="fas fa-file-signature tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">AMC Contracts</span>
+                    <span class="module-subtitle">Maintenance and service tracking</span>
+                </div>
+            </a>
+            {% endif %}
 
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-tint icon-red"></i></div>
-        <span class="dash-label">Blood Bank</span>
-    </a>
+            {% if user|has_any_group:"Pharmacist,Inventory Managers" or user.is_superuser or user|has_group:"Hospital Admins" %}
+            <a href="{% url 'pharmacy:dashboard' %}" class="module-card supply">
+                <div class="icon-wrapper supply"><i class="fas fa-pills tile-icon"></i></div>
+                <div class="module-info">
+                    <span class="module-title">Pharmacy</span>
+                    <span class="module-subtitle">Retail and clinical pharmacy ops</span>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+    </section>
 
-    {% if user|has_group:"Hospital Admins" or user.is_superuser %}
-    <a href="{% url 'staff_mgmt:admin_dashboard' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-chart-line icon-orange"></i></div>
-        <span class="dash-label">MIS Reports</span>
-    </a>
 
-    <a href="{% url 'admin_access' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-cogs icon-blue"></i></div>
-        <span class="dash-label">System Control</span>
-    </a>
-    {% endif %}
-
-    {% if user|has_group:"Billing" or user.is_superuser or user|has_group:"Hospital Admins" %}
-    <a href="{% url 'billing:dashboard' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-file-invoice-dollar icon-green"></i></div>
-        <span class="dash-label">Billing</span>
-    </a>
-    {% endif %}
-
-    {% if user|has_group:"Inventory Managers" or user.is_superuser or user|has_group:"Hospital Admins" %}
-    <a href="{% url 'inventory_dashboard' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-boxes icon-orange"></i></div>
-        <span class="dash-label">Inventory</span>
-    </a>
-    <a href="{% url 'vendor_list' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-truck icon-orange"></i></div>
-        <span class="dash-label">Vendor Mgmt</span>
-    </a>
-    <a href="{% url 'amc_list' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-file-signature icon-teal"></i></div>
-        <span class="dash-label">AMC Contracts</span>
-    </a>
-    {% endif %}
-
-    {% if user|has_any_group:"Pharmacist,Inventory Managers" or user.is_superuser or user|has_group:"Hospital Admins" %}
-    <a href="{% url 'pharmacy:pos' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-cash-register icon-blue"></i></div>
-        <span class="dash-label">POS / Dispense</span>
-    </a>
-    <a href="{% url 'pharmacy:purchase_order_list' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-file-contract icon-orange"></i></div>
-        <span class="dash-label">Purchase Orders</span>
-    </a>
-    <a href="{% url 'pharmacy:stock_list' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-cubes icon-green"></i></div>
-        <span class="dash-label">Stock</span>
-    </a>
-    {% endif %}
-
-    {% if user|has_group:"Receptionist" or user|has_group:"Front Desk" or user.is_superuser or user|has_group:"Hospital    Admins" %}
-    <a href="{% url 'staff_dashboard' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-concierge-bell icon-teal"></i></div>
-        <span class="dash-label">Front Desk</span>
-    </a>
-    {% endif %}
-
-    <a href="{% url 'admissions:dashboard' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-procedures icon-blue"></i></div>
-        <span class="dash-label">Admissions (IPD)</span>
-    </a>
-
-    {% if user.doctor_profile or user|has_group:"Doctors" or user.is_superuser or user|has_group:"Hospital Admins" %}
-    <a href="{% url 'reports_dashboard' %}" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-file-medical-alt icon-red"></i></div>
-        <span class="dash-label">Consultation Reports</span>
-    </a>
-    {% endif %}
-
-    <a href="#" class="dash-item">
-        <div class="icon-circle"><i class="fas fa-users icon-blue"></i></div>
-        <span class="dash-label">HR Management</span>
-    </a>
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('moduleSearch');
+        const cards = document.querySelectorAll('.module-card');
+        const sections = document.querySelectorAll('.dashboard-section');
+
+        searchInput.addEventListener('input', function (e) {
+            const term = e.target.value.toLowerCase();
+
+            cards.forEach(card => {
+                const title = card.querySelector('.module-title').textContent.toLowerCase();
+                const subtitle = card.querySelector('.module-subtitle').textContent.toLowerCase();
+
+                if (title.includes(term) || subtitle.includes(term)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Hide sections with no visible cards
+            sections.forEach(section => {
+                const visibleCards = Array.from(section.querySelectorAll('.module-card')).some(c => c.style.display !== 'none');
+                section.style.display = visibleCards ? 'block' : 'none';
+            });
+        });
+
+        // Shortcut Alt + S to focus search
+        document.addEventListener('keydown', function (e) {
+            if (e.altKey && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
+    });
+</script>
 {% endblock %}

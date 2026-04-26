@@ -39,10 +39,14 @@ def role_based_navigation(request):
     if has_group("Doctors,Receptionist,Front Desk,Inventory Managers,Hospital Admins,Staff"):
         sidebar_menu.append({'label': 'Admissions (IPD)', 'url': reverse('admissions:dashboard'), 'icon': 'fas fa-procedures'})
 
-    # Front Desk
-    if has_group("Receptionist,Front Desk,Staff,Hospital Admins"):
-        sidebar_menu.append({'label': 'Front Desk', 'url': reverse('staff_dashboard'), 'icon': 'fas fa-concierge-bell'})
-        sidebar_menu.append({'label': 'Book Appointment', 'url': reverse('book_appointment'), 'icon': 'fas fa-calendar-check'})
+    # Front Desk / Staff Dashboard
+    if has_group("Receptionist,Front Desk,Staff,Hospital Admins,Doctors,Inventory Managers,Pharmacist"):
+        sidebar_menu.append({'label': 'Staff Dashboard', 'url': reverse('staff_dashboard'), 'icon': 'fas fa-desktop'})
+        sidebar_menu.append({'label': 'Book Appointment', 'url': reverse('book_appointment'), 'icon': 'fas fa-calendar-plus'})
+
+    # Staff Attendance Portal (Requested URL: /staff/dashboard/)
+    if has_group("Receptionist,Front Desk,Staff,Doctors,Inventory Managers,Pharmacist"):
+        sidebar_menu.append({'label': 'My Attendance', 'url': reverse('staff_mgmt:staff_attendance'), 'icon': 'fas fa-clock'})
 
     # Pharmacy
     if has_group("Pharmacist,Inventory Managers"):
@@ -60,6 +64,7 @@ def role_based_navigation(request):
     # Admin
     if has_group("Hospital Admins"):
         sidebar_menu.append({'label': 'Admin Panel', 'url': reverse('staff_mgmt:admin_dashboard'), 'icon': 'fas fa-cogs'})
+        sidebar_menu.append({'label': 'Departments', 'url': reverse('department_list'), 'icon': 'fas fa-building'})
 
     return {
         'sidebar_menu': sidebar_menu,

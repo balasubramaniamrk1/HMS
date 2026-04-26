@@ -17,4 +17,41 @@ def invoice_detail(request, invoice_id):
 @login_required
 def dashboard(request):
     invoices = Invoice.objects.all().order_by('-date')
-    return render(request, 'billing/dashboard.html', {'invoices': invoices})
+    
+    # --- Analytics Data ---
+    from django.db.models import Sum, Count
+    from django.db.models.functions import TruncMonth
+    import json
+    from django.utils import timezone
+    from datetime import timedelta
+
+    # 1. Monthly Revenue (Last 6 Months)
+    six_months_ago = timezone.now().date() - timedelta(days=180)
+    revenue_data = (
+        Invoice.objects.filter(date__gte=six_months_ago)
+        .annotate(month=TruncMonth('date'))
+        .values('month')
+        .annotate(total=Sum('total_amount'))
+        .order_by('month')
+    )
+    
+    chart_revenue = {
+        'labels': [d['month'].strftime('%b %Y') for d in revenue_data],
+        'values': [float(d['total']) for d in revenue_data]
+    }
+
+    # 2. Payment Status Breakdown
+    status_data = (
+        Invoice.objects.values('status')
+        .annotate(count=Count('id'))
+    )
+    chart_status = {
+        'labels': [s['status'].capitalize() for s in status_data],
+        'values': [s['count'] for s in status_data]
+    }
+
+    return render(request, 'billing/dashboard.html', {
+        'invoices': invoices,
+        'chart_revenue_json': json.dumps(chart_revenue),
+        'chart_status_json': json.dumps(chart_status),
+    })

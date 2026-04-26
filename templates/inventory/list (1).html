@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-weight-bold text-dark mb-1">Equipment Inventory</h2>
+            <p class="text-muted">Manage all hospital equipment assets efficiently.</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'inventory_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-chart-pie mr-1"></i> Dashboard
+            </a>
+            {% if user.is_staff %}
+            <a href="{% url 'add_equipment' %}" class="btn btn-primary ml-2 shadow-sm">
+                <i class="fas fa-plus mr-1"></i> Add Equipment
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card border-0 shadow-sm mb-4 bg-light">
+        <div class="card-body py-3">
+            <form method="get" class="form-inline justify-content-between align-items-center">
+                <div class="form-group mb-0">
+                    <label class="mr-3 font-weight-bold text-secondary">Filter Status:</label>
+                    <select name="status" class="custom-select border-0 shadow-sm" style="min-width: 200px;"
+                        onchange="this.form.submit()">
+                        <option value="">All Equipment</option>
+                        <option value="new" {% if status_filter == "new" %}selected{% endif %}>🟢 Newly Purchased</option>
+                        <option value="working" {% if status_filter == "working" %}selected{% endif %}>🔵 Working</option>
+                        <option value="repair" {% if status_filter == "repair" %}selected{% endif %}>🔴 Under Repair
+                        </option>
+                        <option value="retired" {% if status_filter == "retired" %}selected{% endif %}>⚫ Retired</option>
+                    </select>
+                </div>
+                {% if status_filter %}
+                <a href="{% url 'inventory_list' %}" class="btn btn-link text-danger btn-sm font-weight-bold">
+                    Clear Filter
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Inventory Table Card -->
+    <div class="card border-0 shadow-lg">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="bg-light text-uppercase text-secondary small">
+                        <tr>
+                            <th class="py-3 px-4 border-0">Asset Details</th>
+                            <th class="py-3 px-4 border-0">Category / S.No</th>
+                            <th class="py-3 px-4 border-0">Location</th>
+                            <th class="py-3 px-4 border-0">Value</th>
+                            <th class="py-3 px-4 border-0">Status</th>
+                            <th class="py-3 px-4 border-0 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in equipment_list %}
+                        <tr class="border-bottm">
+                            <td class="px-4 py-3">
+                                <div class="font-weight-bold text-dark">{{ item.name }}</div>
+                                <div class="small text-muted">{{ item.model_number }}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div>{{ item.category.name|default:"General" }}</div>
+                                <div class="small text-secondary">{{ item.serial_number }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-secondary">{{ item.location }}</td>
+                            <td class="px-4 py-3">
+                                <div class="font-weight-bold">₹{{ item.current_value|floatformat:2|intcomma }}</div>
+                                <div class="small text-muted" title="Original Cost">Orig: ₹{{ item.cost|intcomma }}
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                {% if item.status == 'new' %}
+                                <span class="badge badge-pill badge-info px-3 py-2 shadow-sm">New</span>
+                                {% elif item.status == 'working' %}
+                                <span class="badge badge-pill badge-success px-3 py-2 shadow-sm">Working</span>
+                                {% elif item.status == 'repair' %}
+                                <span
+                                    class="badge badge-pill badge-warning text-white px-3 py-2 shadow-sm">Repair</span>
+                                {% else %}
+                                <span class="badge badge-pill badge-secondary px-3 py-2">Retired</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="btn-group">
+                                    <a href="{% url 'view_qr' item.id %}" class="btn btn-sm btn-outline-dark"
+                                        title="QR Code">
+                                        <i class="fas fa-qrcode"></i>
+                                    </a>
+                                    <a href="{% url 'maintenance_log_list' item.id %}"
+                                        class="btn btn-sm btn-outline-info" title="Maintenance History">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                    <a href="{% url 'edit_equipment' item.id %}" class="btn btn-sm btn-outline-primary"
+                                        title="Edit">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <h5 class="mt-2">No items found</h5>
+                                    <p class="small">Try adjusting your filters or add new equipment.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom enhancements for the table */
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+    }
+
+    .custom-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-position: right .75rem center;
+        background-repeat: no-repeat;
+        background-size: 16px 12px;
+    }
+</style>
+{% endblock %}

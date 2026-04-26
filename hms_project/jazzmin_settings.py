@@ -58,10 +58,10 @@ JAZZMIN_UI_TWEAKS = {
     "layout_boxed": False,
     "footer_fixed": False,
     "sidebar_fixed": False,
-    "sidebar": "sidebar-dark-info",
+    "sidebar": "sidebar-dark-primary",
     "sidebar_nav_small_text": False,
-    "theme": "flatly",
-    "dark_mode_theme": "darkly",
+    "theme": "slate",
+    "dark_mode_theme": None,
     "button_classes": {
         "primary": "btn-primary",
         "secondary": "btn-secondary",

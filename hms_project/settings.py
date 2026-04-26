@@ -93,6 +93,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.role_based_navigation',
                 'staff_mgmt.context_processors.attendance_context',
+                'doctors.context_processors.grouped_doctors',
             ],
         },
     },

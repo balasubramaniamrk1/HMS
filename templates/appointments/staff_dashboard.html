@@ -3,6 +3,200 @@
 
 {% block title %}Staff Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+    .table-premium {
+        width: 100% !important;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        margin-top: -10px;
+        table-layout: auto; /* Changed back to auto but with max-widths to allow natural fit */
+    }
+    .table-premium thead th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #7f8c8d;
+        font-weight: 700;
+        border: none;
+        padding: 12px 15px;
+        white-space: nowrap;
+    }
+    .table-premium tbody tr {
+        transition: all 0.2s ease;
+    }
+    .table-premium tbody tr:hover {
+        transform: translateY(-2px);
+    }
+    .table-premium tbody td {
+        background: #fff;
+        padding: 15px 20px;
+        vertical-align: middle;
+        border-top: 1px solid #f1f4f8;
+        border-bottom: 1px solid #f1f4f8;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        color: #2c3e50;
+    }
+    .table-premium tbody td:first-child {
+        border-left: 1px solid #f1f4f8;
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+    .table-premium tbody td:last-child {
+        border-right: 1px solid #f1f4f8;
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+    
+    .card-premium {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .status-badge {
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 5px 12px;
+        border-radius: 30px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+    .status-badge::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    .status-badge.pending { background: #fff9db; color: #f08c00; }
+    .status-badge.pending::before { background: #f08c00; }
+    .status-badge.confirmed { background: #ebfbee; color: #2b8a3e; }
+    .status-badge.confirmed::before { background: #2b8a3e; }
+    .status-badge.completed { background: #f8f9fa; color: #495057; border: 1px solid #e9ecef; }
+    .status-badge.completed::before { background: #adb5bd; }
+    .status-badge.cancelled { background: #fff5f5; color: #c92a2a; }
+    .status-badge.cancelled::before { background: #c92a2a; }
+
+    .action-group {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: nowrap; /* Prevent wrapping */
+    }
+
+    .btn-action-pill {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: all 0.2s;
+        border: none;
+    }
+    .btn-action-pill:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .btn-confirm { background: #40c057; color: white; }
+    .btn-cancel { background: #fa5252; color: white; }
+    .btn-book { background: #228be6; color: white; }
+
+    .patient-info h5 {
+        font-size: 1rem;
+        margin-bottom: 0;
+        color: #1a202c;
+    }
+    .text-phone { font-size: 0.85rem; color: #718096; font-weight: 500; }
+    .nowrap { white-space: nowrap; }
+    
+    /* KPI Row Redesign */
+    .kpi-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .kpi-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #f1f4f8;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    .kpi-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .icon-pharmacy { background: #fff1f2; color: #e11d48; }
+    .icon-inventory { background: #fffbeb; color: #d97706; }
+    .icon-amc { background: #eff6ff; color: #2563eb; }
+
+    .kpi-info { flex-grow: 1; }
+    .kpi-info h4 { font-size: 0.9rem; color: #64748b; font-weight: 600; margin-bottom: 4px; }
+    .kpi-count { font-size: 1.8rem; font-weight: 800; color: #1e293b; line-height: 1.2; }
+    
+    .kpi-details {
+        margin-top: 15px;
+        padding-top: 12px;
+        border-top: 1px solid #f1f5f9;
+    }
+    
+    .kpi-detail-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+        color: #475569;
+    }
+    .kpi-detail-item .val { font-weight: 700; color: #ef4444; }
+
+    .kpi-link {
+        display: block;
+        text-align: right;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #3b82f6;
+        margin-top: 8px;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .kpi-row { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+{% endblock %}
+
 {% block content %}
 <section class="page-header">
     <div class="container">
@@ -11,138 +205,172 @@
     </div>
 </section>
 
-<section class="container section-padding" style="max-width: 1400px;">
-    {% if messages %}
-    <!-- Messages handled globally in base.html now -->
-    {% endif %}
+<section class="dashboard-section">
+    <div class="container-fluid px-md-5">
+        {% if inventory_stats %}
+        <!-- Top KPI Alert Row -->
+        <div class="kpi-row">
+            <!-- Pharmacy KPI -->
+            <div class="kpi-card">
+                <div class="kpi-icon icon-pharmacy">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div class="kpi-info">
+                    <h4>Pharmacy Alerts</h4>
+                    <div class="kpi-count">{{ inventory_stats.pharmacy_low_stock_count }} <small style="font-size: 1rem;">Low Stock</small></div>
+                    
+                    <div class="kpi-details">
+                        {% for med in inventory_stats.pharmacy_low_stock|slice:":2" %}
+                        <div class="kpi-detail-item">
+                            <span>{{ med.name }}</span>
+                            <span class="val">{{ med.total_qty|default:0 }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'pharmacy:stock_list' %}" class="kpi-link">Manage Pharmacy <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+            </div>
 
-    <div class="row">
-        <!-- Left Column: Dynamic Content -->
-        <div class="col-lg-8">
-            {% if show_appointments %}
-            <h2 class="mb-4">Today's Appointments</h2>
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0" style="width:100%; border-collapse: collapse;">
-                        <thead style="background-color: #f8f9fa;">
-                            <tr>
-                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Patient</th>
-                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Doctor / Dept</th>
-                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Time</th>
-                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Status</th>
-                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for appt in appointments %}
-                            <tr style="border-bottom: 1px solid #f1f1f1;">
-                                <td style="padding:15px;">
-                                    <h5 style="margin:0; font-size:1rem; color:#2c3e50;">{{ appt.name }}</h5>
-                                    <small style="color:#7f8c8d;">{{ appt.phone }}</small>
-                                </td>
-                                <td style="padding:15px;">
-                                    {% if appt.doctor %}
-                                    <span style="font-weight:600; color:#2980b9;">Dr. {{ appt.doctor.name }}</span>
-                                    {% else %}
-                                    <span style="color:#27ae60;">{{ appt.department.name }}</span>
-                                    {% endif %}
-                                </td>
-                                <td style="padding:15px;">
-                                    {{ appt.preferred_date }}<br>
-                                    <small class="text-muted">{{ appt.preferred_time }}</small>
-                                </td>
-                                <td style="padding:15px;">
-                                    <span class="status-badge {{ appt.status }}">{{ appt.get_status_display }}</span>
-                                </td>
-                                <td style="padding:15px;">
-                                    {% if appt.status == 'pending' %}
-                                    <div class="btn-group">
-                                        <a href="{% url 'update_status' appt.pk 'confirmed' %}"
-                                            class="btn-sm btn-success shadow-sm" title="Confirm">
-                                            <i class="fas fa-check"></i>
-                                        </a>
-                                        <a href="{% url 'update_status' appt.pk 'cancelled' %}"
-                                            class="btn-sm btn-danger shadow-sm" title="Cancel">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                        <a href="{% url 'book_appointment' %}?name={{ appt.name|urlencode }}&phone={{ appt.phone|urlencode }}&doctor={{ appt.doctor.id|default:'' }}"
-                                            target="_blank" class="btn-sm btn-primary shadow-sm" title="Book New Appt">
-                                            <i class="fas fa-plus"></i>
-                                        </a>
-                                    </div>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center py-5">
-                                    <div style="color:#bdc3c7;">
-                                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
-                                        <p>No appointments found today.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <!-- Inventory KPI -->
+            <div class="kpi-card">
+                <div class="kpi-icon icon-inventory">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="kpi-info">
+                    <h4>Supply Levels</h4>
+                    <div class="kpi-count">{{ inventory_stats.low_stock_count }} <small style="font-size: 1rem;">Critical</small></div>
+                    
+                    <div class="kpi-details">
+                        {% for item in inventory_stats.low_stock_items|slice:":2" %}
+                        <div class="kpi-detail-item">
+                            <span>{{ item.name }}</span>
+                            <span class="val">{{ item.quantity }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'consumable_list' %}" class="kpi-link">Refill Supplies <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
             </div>
-            {% elif is_inventory_manager %}
-            <h2 class="mb-4">Inventory Overview</h2>
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm bg-white h-100">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
-                            <h3 class="display-4 font-weight-bold text-dark">{{ inventory_stats.low_stock_count }}</h3>
-                            <p class="text-muted mb-3">Low Stock Items</p>
-                            <a href="{% url 'consumable_list' %}"
-                                class="btn btn-outline-danger btn-sm rounded-pill px-4">Check Stock</a>
-                        </div>
-                    </div>
+
+            <!-- AMC KPI -->
+            <div class="kpi-card">
+                <div class="kpi-icon icon-amc">
+                    <i class="fas fa-tools"></i>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card border-0 shadow-sm bg-white h-100">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-file-contract text-warning fa-3x mb-3"></i>
-                            <h3 class="display-4 font-weight-bold text-dark">{{ inventory_stats.expiring_amcs }}</h3>
-                            <p class="text-muted mb-3">AMCs Expiring Soon</p>
-                            <a href="{% url 'inventory_dashboard' %}"
-                                class="btn btn-outline-warning btn-sm rounded-pill px-4">View Contracts</a>
+                <div class="kpi-info">
+                    <h4>Urgent Maintenance</h4>
+                    <div class="kpi-count">{{ inventory_stats.urgent_amcs_count }} <small style="font-size: 1rem;">Due</small></div>
+                    
+                    <div class="kpi-details">
+                        {% for amc in inventory_stats.urgent_amcs|slice:":2" %}
+                        <div class="kpi-detail-item">
+                            <span>{{ amc.equipment.name|truncatechars:15 }}</span>
+                            <span class="val" style="color: #2563eb;">{{ amc.contract_end|date:"d M" }}</span>
                         </div>
+                        {% endfor %}
                     </div>
-                </div>
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm bg-primary text-white">
-                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-1 font-weight-bold">Manage Inventory</h5>
-                                <p class="mb-0 text-white-50">Access the full dashboard for equipment and vendors</p>
-                            </div>
-                            <a href="{% url 'inventory_dashboard' %}"
-                                class="btn btn-light text-primary font-weight-bold shadow-sm">
-                                Go to Dashboard <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
-                        </div>
-                    </div>
+                    <a href="{% url 'inventory_dashboard' %}" class="kpi-link">Open Tracker <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
             </div>
-            {% else %}
-            <!-- Default View for Other Roles -->
-            <div class="jumbotron bg-white shadow-sm border-0">
-                <h2 class="display-5">Welcome, {{ staff_name }}!</h2>
-                <p class="lead">Have a productive day.</p>
-                <hr class="my-4">
-                <p>Track your work hours using the attendance widget on the right.</p>
-            </div>
-            {% endif %}
         </div>
+        {% endif %}
 
-        <!-- Right Column: Attendance Widget (35%) -->
-        <div class="col-lg-4">
-            {% if not is_doctor %}
-            {% include 'includes/checkin_widget.html' %}
+        <div id="main-dashboard-content">
+            {% if show_appointments %}
+            <h2 class="mb-4 text-navy font-weight-bold" style="font-size: 1.6rem;">Today's Appointments</h2>
+            <div class="card card-premium">
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="overflow-x: auto; padding-bottom: 10px;">
+                        <table class="table-premium">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Phone</th>
+                                    <th>Doctor / Dept</th>
+                                    <th>Date</th>
+                                    <th>Slot</th>
+                                    <th>Appt. Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appt in appointments %}
+                                <tr>
+                                    <td>
+                                        <div class="patient-info">
+                                            <h5 class="font-weight-bold" style="margin-bottom: 2px;">{{ appt.name }}</h5>
+                                            {% if appt.patient %}
+                                            <a href="{% url 'patient_history' appt.patient.patient_id %}" class="text-primary font-weight-bold" style="font-size: 0.75rem;" title="View Medical History">
+                                                <i class="fas fa-history mr-1"></i> {{ appt.patient.patient_id }}
+                                            </a>
+                                            {% else %}
+                                            <small class="text-muted" style="font-size: 0.7rem;">ID: Pending</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-phone">{{ appt.phone }}</span>
+                                    </td>
+                                    <td class="nowrap">
+                                        {% if appt.doctor %}
+                                        <span class="font-weight-bold" style="color: #3182ce;">Dr. {{ appt.doctor.name }}</span>
+                                        {% else %}
+                                        <span style="color: #38a169;">{{ appt.department.name }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="nowrap">
+                                        <div class="font-weight-medium" style="color: #4a5568;">{{ appt.preferred_date }}</div>
+                                    </td>
+                                    <td class="col-slot">
+                                        <span class="badge" style="background: #edf2f7; color: #4a5568; font-size: 0.7rem; padding: 5px 10px; border-radius: 6px;">{{ appt.preferred_time }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge {{ appt.status }}">{{ appt.get_status_display }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-group">
+                                            {% if appt.status == 'pending' %}
+                                            <button hx-post="{% url 'update_status' appt.pk 'confirmed' %}"
+                                                hx-target="#main-dashboard-content" hx-swap="innerHTML"
+                                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                                class="btn-action-pill btn-confirm shadow-sm" title="Confirm">
+                                                <i class="fas fa-check" style="font-size: 0.9rem;"></i>
+                                            </button>
+                                            <button hx-post="{% url 'update_status' appt.pk 'cancelled' %}"
+                                                hx-target="#main-dashboard-content" hx-swap="innerHTML"
+                                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                                class="btn-action-pill btn-cancel shadow-sm" title="Cancel">
+                                                <i class="fas fa-times" style="font-size: 0.9rem;"></i>
+                                            </button>
+                                            {% endif %}
+                                            <a href="{% url 'book_appointment' %}?name={{ appt.name|urlencode }}&phone={{ appt.phone|urlencode }}&doctor={{ appt.doctor.id|default:'' }}"
+                                                target="_blank" class="btn-action-pill btn-book shadow-sm"
+                                                title="Book New Appt">
+                                                <i class="fas fa-plus" style="font-size: 0.9rem;"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <p>No appointments found today.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             {% endif %}
+
+            <!-- Attendance Widget -->
+            <div class="mt-4">
+                {% if not is_doctor %}
+                {% include 'includes/checkin_widget.html' %}
+                {% endif %}
+            </div>
         </div>
     </div>
 </section>

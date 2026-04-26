@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero-content">
+        <h1>World-Class Healthcare, <br> Right Here.</h1>
+        <p>Advanced multi-speciality care with a patient-first approach. Trusted by thousands.</p>
+        <div class="hero-actions">
+            <a href="{% url 'book_appointment' %}" class="btn-primary">Book an Appointment</a>
+            <a href="{% url 'doctor_list' %}" class="btn-secondary">Find a Doctor</a>
+        </div>
+    </div>
+</section>
+
+<section class="quick-links container">
+    <div class="grid-3">
+        <div class="card highlight-card">
+            <h3>Emergency 24x7</h3>
+            <p>Immediate care when it matters most.</p>
+            <a href="tel:+911234567890" class="link-arrow">Call Ambulance &rarr;</a>
+        </div>
+        <div class="card highlight-card">
+            <h3>Our Specialities</h3>
+            <p>Centers of Excellence in Cardiology, Oncology, and more.</p>
+            <a href="#" class="link-arrow">View Departments &rarr;</a>
+        </div>
+        <div class="card highlight-card">
+            <h3>Patient Guide</h3>
+            <p>Visiting hours, insurance, and admission details.</p>
+            <a href="#" class="link-arrow">Learn More &rarr;</a>
+        </div>
+    </div>
+</section>
+
+{% if departments %}
+<section class="featured-depts container section-padding">
+    <div class="section-header">
+        <h2>Centers of Excellence</h2>
+        <a href="#" class="view-all">View All Specialities</a>
+    </div>
+    <div class="grid-4">
+        {% for dept in departments %}
+        <div class="dept-card">
+            <div class="icon-box">
+                {% if dept.icon %}
+                <img src="{{ dept.icon.url }}" alt="{{ dept.name }}">
+                {% else %}
+                <span class="placeholder-icon">{{ dept.name|slice:":1" }}</span>
+                {% endif %}
+            </div>
+            <h3>{{ dept.name }}</h3>
+            <p>{{ dept.description|truncatewords:10 }}</p>
+            <a href="#" class="learn-more">Explore</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if doctors %}
+<section class="featured-doctors bg-light section-padding">
+    <div class="container">
+        <div class="section-header">
+            <h2>Our Experts</h2>
+            <a href="#" class="view-all">Find a Doctor</a>
+        </div>
+        <div class="grid-4">
+            {% for doc in doctors %}
+            <div class="doctor-card">
+                <div class="doc-img">
+                    {% if doc.photo %}
+                    <img src="{{ doc.photo.url }}" alt="{{ doc.name }}">
+                    {% else %}
+                    <div class="placeholder-doc-img"></div>
+                    {% endif %}
+                </div>
+                <div class="doc-info">
+                    <h4>{{ doc.name }}</h4>
+                    <span class="speciality">{{ doc.specialization }}</span>
+                    <p class="qualification">{{ doc.qualifications }}</p>
+                    <a href="#" class="btn-outline-sm">Profile</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+        padding: 80px 0;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: var(--text-color);
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: #555;
+        margin-bottom: 40px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-actions {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 10px 20px;
+        border-radius: var(--radius);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    /* Grids */
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+
+    /* Quick Links */
+    .quick-links {
+        transform: translateY(-40px);
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .highlight-card h3 {
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .link-arrow {
+        color: var(--secondary-color);
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 15px;
+        display: inline-block;
+    }
+
+    /* Sections */
+    .section-padding {
+        padding: 80px 0;
+    }
+
+    .bg-light {
+        background-color: #f0f4f8;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .section-header h2 {
+        font-size: 2rem;
+        color: #222;
+    }
+
+    .view-all {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* Dept Card */
+    .dept-card {
+        background: white;
+        padding: 25px;
+        border-radius: var(--radius);
+        border: 1px solid #eee;
+        text-align: center;
+        transition: box-shadow 0.3s;
+    }
+
+    .dept-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: transparent;
+    }
+
+    .icon-box {
+        margin-bottom: 15px;
+        height: 60px;
+        width: 60px;
+        background: var(--light-bg);
+        border-radius: 50%;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--primary-color);
+        font-size: 1.5rem;
+    }
+
+    /* Doctor Card */
+    .doctor-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .doc-img {
+        height: 250px;
+        background-color: #ddd;
+        overflow: hidden;
+    }
+
+    .doc-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .placeholder-doc-img {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, #ccc, #aaa);
+    }
+
+    .doc-info {
+        padding: 20px;
+    }
+
+    .doc-info h4 {
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .speciality {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .qualification {
+        color: #777;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .btn-outline-sm {
+        display: inline-block;
+        border: 1px solid #ddd;
+        padding: 5px 15px;
+        border-radius: 20px;
+        text-decoration: none;
+        color: #555;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .btn-outline-sm:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}

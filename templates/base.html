@@ -11,32 +11,87 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2.4">
+    <style>
+        .dropdown-content {
+            min-width: 280px;
+            padding: 15px 0;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .dropdown-header {
+            padding: 10px 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #f8fafc !important;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .dropdown-header:first-child {
+            margin-top: 0;
+        }
+        .dropdown-content a {
+            font-size: 0.9rem;
+            padding: 8px 20px 8px 30px;
+            color: #475569;
+        }
+        .dropdown-content a:hover {
+            background-color: #eff6ff;
+            color: var(--primary-color);
+        }
+        .nav-link.dropdown-toggle::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-left: 8px;
+            font-size: 0.8rem;
+            vertical-align: middle;
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
 
 <body>
 
     <header>
-        <div class="container">
+        <div class="container-fluid px-5">
             <nav class="navbar">
                 <a href="/" class="brand"><i class="fas fa-heartbeat mr-2"></i>HealthPlus</a>
-                <div class="nav-menu">
+                <div class="nav-menu d-none d-md-flex">
                     <a href="/" class="nav-link">Home</a>
                     <a href="{% url 'about' %}" class="nav-link">About</a>
                     <a href="{% url 'department_list' %}" class="nav-link">Center of Excellence</a>
-                    <a href="{% url 'doctor_list' %}" class="nav-link">Doctors</a>
+                    <div class="dropdown">
+                        <a href="{% url 'doctor_list' %}" class="nav-link dropdown-toggle">Doctors</a>
+                        <div class="dropdown-content">
+                            {% for dept in nav_departments %}
+                            <a href="{% url 'doctor_list' %}?speciality={{ dept.slug }}"
+                                class="dropdown-header font-weight-bold"
+                                style="color: var(--primary-color); background: #f8f9fa; pointer-events: none;">{{ dept.name }}</a>
+                            {% for doctor in dept.doctors.all %}
+                            <a href="{% url 'doctor_detail' doctor.slug %}" style="padding-left: 30px;">{{ doctor.name }}</a>
+                            {% endfor %}
+                            {% endfor %}
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'doctor_list' %}" class="font-weight-bold text-center">View All Specialists</a>
+                        </div>
+                    </div>
                     <a href="{% url 'package_list' %}" class="nav-link">Packages</a>
 
                     {% if not user.is_authenticated %}
                     <a href="{% url 'login' %}" class="nav-link">Login</a>
                     {% endif %}
                 </div>
-                <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-sm ml-3">Book Appointment</a>
-                {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}" class="btn btn-danger btn-sm ml-2"><i class="fas fa-power-off mr-1"></i>
-                    Logout</a>
-                {% endif %}
-                <div class="mobile-toggle d-md-none"><i class="fas fa-bars"></i></div>
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-sm ml-3">Book Appointment</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm ml-2"><i
+                            class="fas fa-power-off mr-1"></i>
+                        Logout</a>
+                    {% endif %}
+                    <div class="mobile-toggle d-md-none ml-3"><i class="fas fa-bars"></i></div>
+                </div>
             </nav>
         </div>
     </header>
@@ -62,6 +117,12 @@
         <!-- Main Content Wrapper -->
         <main class="{% if user.is_authenticated %}app-main-content{% endif %}">
             {% block content %}{% endblock %}
+
+            <footer>
+                <div class="container-fluid px-5">
+                    <p>&copy; 2025 HealthPlus Multi-Speciality Hospital. All rights reserved.</p>
+                </div>
+            </footer>
         </main>
 
     </div>
@@ -92,12 +153,6 @@
         }, 5000);
     </script>
     {% endif %}
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 HealthPlus Multi-Speciality Hospital. All rights reserved.</p>
-        </div>
-    </footer>
 
     <!-- Bootstrap JS and Dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

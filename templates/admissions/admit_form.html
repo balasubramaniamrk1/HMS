@@ -62,7 +62,7 @@
                             <select name="bed" class="form-control" required>
                                 <option value="">-- Select Available Bed --</option>
                                 {% for bed in available_beds %}
-                                <option value="{{ bed.id }}">{{ bed.ward.name }} - {{ bed.bed_number }} ({{                                    bed.ward.get_ward_type_display }}) - ₹{{ bed.price_per_day }}/day</option>
+                                <option value="{{ bed.id }}">{{ bed.ward.name }} - {{ bed.bed_number }} ({{ bed.ward.get_ward_type_display }}) - ₹{{ bed.price_per_day }}/day</option>
                                 {% endfor %}
                             </select>
                         </div>

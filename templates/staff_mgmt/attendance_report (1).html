@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+<section class="page-header"
+    style="background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white; padding: 40px 0; text-align: center;">
+    <div class="container">
+        <h1>Attendance Report</h1>
+        <p>Monitor Staff Attendance and Punctuality</p>
+    </div>
+</section>
+
+<section class="container section-padding" style="margin-top: 40px; margin-bottom: 50px;">
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="form-inline" style="justify-content: center;">
+                <label class="mr-2">Month:</label>
+                <input type="month" name="month" class="form-control mr-3" value="{{ current_month }}"
+                    onchange="this.form.submit()">
+
+                <label class="mr-2">Department:</label>
+                <select name="department" class="form-control mr-3" onchange="this.form.submit()">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if selected_department==dept %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+
+                <a href="{% url 'staff_mgmt:attendance_report' %}" class="btn btn-secondary">Reset</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-sm p-3">
+                <h3>{{ stats.present }}</h3>
+                <small>Present Days</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white shadow-sm p-3">
+                <h3>{{ stats.late }}</h3>
+                <small>Late Arrivals</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow-sm p-3">
+                <h3>{{ stats.absent }}</h3>
+                <small>Absences</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Attendance Log</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Staff Name</th>
+                            <th>Department</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Status</th>
+                            <th>Work Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_list %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>
+                                <strong>{{ record.staff.user.get_full_name }}</strong><br>
+                                <small class="text-muted">{{ record.staff.employee_id }}</small>
+                            </td>
+                            <td>{{ record.staff.department }}</td>
+                            <td>{{ record.check_in|default:"-" }}</td>
+                            <td>{{ record.check_out|default:"-" }}</td>
+                            <td>
+                                {% if record.status == 'present' %}
+                                <span class="badge badge-success">Present</span>
+                                {% elif record.status == 'late' %}
+                                <span class="badge badge-warning">Late</span>
+                                {% elif record.status == 'absent' %}
+                                <span class="badge badge-danger">Absent</span>
+                                {% else %}
+                                <span class="badge badge-secondary">{{ record.status|title }}</span>
+                                {% endif %}
+                                {% if record.is_late %}
+                                <span class="badge badge-danger ml-1" title="Late arrival">L</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ record.work_hours }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No records found for selected filters.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</section>
+{% endblock %}

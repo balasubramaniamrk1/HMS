@@ -31,8 +31,7 @@
         <ul class="mb-0 pl-3">
             {% for med in low_stock_medicines %}
             <li>
-                <strong>{{ med.name }}</strong> (Current: {{ med.total_quantity }}, Reorder Level: {{ med.reorder_level
-                }})
+                <strong>{{ med.name }}</strong> (Current: {{ med.total_quantity }}, Reorder Level: {{ med.reorder_level }})
             </li>
             {% endfor %}
         </ul>

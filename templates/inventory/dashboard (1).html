@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Premium Font Stack */
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Stats Cards - Professional */
+    .stat-card-premium {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        padding: 24px;
+        position: relative;
+        height: 100%;
+        transition: all 0.2s ease;
+    }
+
+    .stat-card-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e0;
+    }
+
+    .stat-card-premium .stat-label {
+        color: #718096;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .stat-card-premium .stat-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .stat-card-premium .stat-icon-bg {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    /* Professional Colors */
+    .icon-info {
+        background: #ebf8ff;
+        color: #3182ce;
+    }
+
+    .icon-warning {
+        background: #fffaf0;
+        color: #dd6b20;
+    }
+
+    .icon-primary {
+        background: #ebf4ff;
+        color: #5a67d8;
+    }
+
+    .icon-success {
+        background: #f0fff4;
+        color: #38a169;
+    }
+
+    /* Alerts Section - Professional */
+    .alert-card-premium {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        background: #fff;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .alert-header-premium {
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .alert-header-premium h6 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+    }
+
+    .alert-header-premium .badge-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    /* Professional Headers - Muted Tones */
+    .header-pro-red {
+        background-color: #c53030;
+    }
+
+    /* Red-700 */
+    .header-pro-yellow {
+        background-color: #b7791f;
+    }
+
+    /* Yellow-700 (Bronze/Gold) */
+    .header-pro-dark {
+        background-color: #4a5568;
+    }
+
+    /* Gray-700 */
+
+    /* List Items */
+    .alert-body {
+        padding: 0;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .premium-list-item {
+        padding: 12px 20px;
+        border-bottom: 1px solid #edf2f7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .premium-list-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-title {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+
+    .item-subtitle {
+        color: #718096;
+        font-size: 0.75rem;
+    }
+
+    /* Badges */
+    .item-pill-red {
+        background-color: #fff5f5;
+        color: #c53030;
+        border: 1px solid #fc8181;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .item-pill-yellow {
+        background-color: #fffff0;
+        color: #b7791f;
+        border: 1px solid #f6e05e;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .item-status-warning {
+        color: #b7791f;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-top: 4px;
+        text-align: right;
+        display: block;
+    }
+
+    .item-status-danger {
+        color: #c53030;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-top: 4px;
+        text-align: right;
+        display: block;
+    }
+
+    .date-highlight {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #4a5568;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 30px 20px;
+        color: #a0aec0;
+    }
+
+    .empty-state i {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        display: block;
+        color: #68d391;
+    }
+</style>
+
+<div class="container-fluid mt-4 px-4">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="font-weight-bold text-dark mb-1"
+                style="font-family: 'Inter', sans-serif; letter-spacing: -0.5px;">Inventory Dashboard</h2>
+            <p class="text-muted mb-0 small">Operational Overview</p>
+        </div>
+        <div>
+            <a href="{% url 'inventory_list' %}" class="btn btn-sm btn-outline-secondary font-weight-600">
+                <i class="fas fa-layer-group mr-2"></i> All Equipment
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card-premium">
+                <span class="stat-label">Total Assets</span>
+                <div class="stat-value">{{ total_equipment }}</div>
+                <div class="stat-icon-bg icon-info">
+                    <i class="fas fa-cubes"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card-premium">
+                <span class="stat-label">Under Repair</span>
+                <div class="stat-value">{{ under_repair }}</div>
+                <div class="stat-icon-bg icon-warning">
+                    <i class="fas fa-tools"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'vendor_list' %}" class="text-decoration-none">
+                <div class="stat-card-premium">
+                    <span class="stat-label">Vendors</span>
+                    <div class="stat-value">{{ total_vendors }}</div>
+                    <div class="stat-icon-bg icon-primary">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consumable_list' %}" class="text-decoration-none">
+                <div class="stat-card-premium">
+                    <span class="stat-label">Consumables</span>
+                    <div class="stat-value">{{ total_consumables }}</div>
+                    <div class="stat-icon-bg icon-success">
+                        <i class="fas fa-prescription-bottle"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Alerts Row -->
+    <div class="row g-4">
+        <!-- Low Stock -->
+        <div class="col-lg-4 mb-4">
+            <div class="alert-card-premium">
+                <div class="alert-header-premium header-pro-red">
+                    <h6><i class="fas fa-exclamation-circle mr-2"></i> Low Stock</h6>
+                    <span class="badge-count">{{ low_stock_count }}</span>
+                </div>
+                <div class="alert-body">
+                    {% for item in low_stock_items %}
+                    <div class="premium-list-item">
+                        <div>
+                            <div class="item-title">{{ item.name }}</div>
+                            <div class="item-subtitle">Vendor: {{ item.vendor.name|default:"--" }}</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="item-pill-red">{{ item.quantity_in_stock }} {{ item.unit }}</span>
+                            <span class="item-status-danger">Reorder Level</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        No stock alerts
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- AMC Expiry -->
+        <div class="col-lg-4 mb-4">
+            <div class="alert-card-premium">
+                <div class="alert-header-premium header-pro-yellow">
+                    <h6><i class="fas fa-file-contract mr-2"></i> AMC Expiry</h6>
+                    <span class="badge-count">{{ amc_alert_count }}</span>
+                </div>
+                <div class="alert-body">
+                    {% for amc in expired_amcs %}
+                    <div class="premium-list-item" style="background-color: #fff5f5;">
+                        <div>
+                            <div class="item-title text-danger">{{ amc.equipment.name }}</div>
+                            <div class="item-subtitle text-danger font-weight-bold">Expired</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="date-highlight text-danger">{{ amc.contract_end|date:"M d, Y" }}</div>
+                            <span class="item-status-danger">RENEW NOW</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% for amc in expiring_amcs %}
+                    <div class="premium-list-item">
+                        <div>
+                            <div class="item-title">{{ amc.equipment.name }}</div>
+                            <div class="item-subtitle">Ends Soon</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="date-highlight" style="color: #b7791f;">{{ amc.contract_end|date:"M d, Y" }}
+                            </div>
+                            <span class="item-status-warning">DUE DATE</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    {% if not expired_amcs %}
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        No expiring contracts
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Meds Expiring -->
+        <div class="col-lg-4 mb-4">
+            <div class="alert-card-premium">
+                <div class="alert-header-premium header-pro-dark">
+                    <h6><i class="fas fa-capsules mr-2"></i> Meds Expiring</h6>
+                    <span class="badge-count">{{ med_expiry_count }}</span>
+                </div>
+                <div class="alert-body">
+                    {% for batch in expiring_medicines %}
+                    <div class="premium-list-item">
+                        <div>
+                            <div class="item-title">{{ batch.medicine.name }}</div>
+                            <div class="item-subtitle">Batch: {{ batch.batch_number }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="date-highlight">{{ batch.expiry_date|date:"d M Y" }}</div>
+                            <span class="item-pill-yellow" style="margin-top: 5px; display: inline-block;">{{ batch.quantity }} left</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        No medicines expiring
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

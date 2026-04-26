@@ -5,7 +5,7 @@
 
 {% block content %}
 <section class="hero-modern fade-in">
-    <div class="container">
+    <div class="container-fluid px-5">
         <div class="hero-text">
             <span class="badge-premium">Top Rated Hospital</span>
             <h1>World-Class Care, <span class="highlight-text">Personalized for You</span></h1>
@@ -38,7 +38,7 @@
     </div>
 </section>
 
-<section class="services-modern container">
+<section class="services-modern container-fluid px-5">
     <div class="section-title text-center mb-5">
         <span class="sub-title">What We Offer</span>
         <h2>Comprehensive Healthcare Services</h2>
@@ -75,7 +75,7 @@
 
 {% if departments %}
 <section class="depts-modern section-padding bg-light-alt">
-    <div class="container">
+    <div class="container-fluid px-5">
         <div class="d-flex justify-content-between align-items-end mb-5">
             <div>
                 <span class="sub-title">Centers of Excellence</span>
@@ -104,7 +104,7 @@
 {% endif %}
 
 {% if doctors %}
-<section class="doctors-modern container section-padding">
+<section class="doctors-modern container-fluid px-5 section-padding">
     <div class="section-title text-center mb-5">
         <span class="sub-title">Meet Our Team</span>
         <h2>Trusted Medical Experts</h2>
@@ -139,20 +139,21 @@
     .hero-modern {
         display: flex;
         align-items: center;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 50px 0;
+        background: var(--brand-white);
+        padding: 50px 5%;
         min-height: 700px;
         position: relative;
         overflow: hidden;
     }
 
-    .hero-modern .container {
+    .hero-modern .container-fluid {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 40px;
         position: relative;
         z-index: 2;
+        width: 100%;
     }
 
     .hero-text {
@@ -306,11 +307,11 @@
 
     /* Depts Modern */
     .bg-light-alt {
-        background-color: #F1FAEE;
+        background-color: var(--brand-white);
     }
 
     .section-padding {
-        padding: 80px 0;
+        padding: 80px 5%;
     }
 
     .dept-card-modern {

@@ -16,10 +16,14 @@
             <h2>Overview</h2>
             <p>{{ department.description }}</p>
 
-            <div class="cta-box">
-                <h3>Need an Appointment?</h3>
-                <p>Book a consultation with our {{ department.name }} specialists today.</p>
-                <a href="#" class="btn-primary">Book Now</a>
+            <div class="cta-premium-box mt-5">
+                <div class="cta-content">
+                    <h3 class="font-weight-bold">Need an Appointment?</h3>
+                    <p class="mb-0">Book a consultation with our <strong>{{ department.name }}</strong> specialists today for expert care.</p>
+                </div>
+                <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                   <i class="fas fa-calendar-alt mr-2"></i> Book Now
+                </a>
             </div>
         </div>
 
@@ -68,16 +72,28 @@
         gap: 50px;
     }
 
-    .cta-box {
-        background: #e0f7fa;
-        padding: 25px;
-        border-radius: var(--radius);
-        margin-top: 30px;
+    .cta-premium-box {
+        background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+        padding: 40px;
+        border-radius: 20px;
+        border-left: 6px solid var(--primary-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     }
 
-    .cta-box h3 {
+    .cta-content h3 {
         color: var(--primary-color);
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+    }
+
+    @media (max-width: 992px) {
+        .cta-premium-box {
+            flex-direction: column;
+            text-align: center;
+        }
     }
 
     .doc-list-simple {

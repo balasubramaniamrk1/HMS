@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Return Medicine - Sale #{{ sale.id }}{% endblock %}
+
+{% block content %}
+<section class="page-header"
+    style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 40px 0; text-align: center;">
+    <div class="container">
+        <h1>Return Medicine</h1>
+        <p>Sale #{{ sale.id }} - {{ sale.date|date:"F d, Y" }}</p>
+    </div>
+</section>
+
+<section class="container section-padding" style="margin-top: 40px;">
+
+    <div class="card shadow-sm">
+        <div class="card-body" style="padding: 30px;">
+
+            <h4>Select Items to Return</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Batch</th>
+                            <th>Sold Qty</th>
+                            <th>Price</th>
+                            <th>Return Qty</th>
+                            <th>Restock?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in sale.items.all %}
+                        <tr>
+                            <td>{{ item.batch.medicine.name }}</td>
+                            <td>{{ item.batch.batch_number }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹{{ item.price_at_sale }}</td>
+                            <td>
+                                <input type="number" class="form-control return-qty" data-id="{{ item.id }}"
+                                    data-max="{{ item.quantity }}" min="0" max="{{ item.quantity }}" value="0">
+                            </td>
+                            <td>
+                                <input type="checkbox" class="is-restock" data-id="{{ item.id }}" checked>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <form method="post" id="returnForm" style="margin-top: 20px;">
+                {% csrf_token %}
+                <input type="hidden" name="sale_id" value="{{ sale.id }}">
+                <input type="hidden" name="return_items" id="returnItemsInput">
+
+                <div class="form-group">
+                    <label>Reason for Return</label>
+                    <textarea name="reason" class="form-control" rows="3" required
+                        placeholder="e.g. Expired, Damaged, Wrong Item"></textarea>
+                </div>
+
+                <button type="button" class="btn btn-danger btn-lg" onclick="submitReturn()">Process Return</button>
+            </form>
+
+        </div>
+    </div>
+
+</section>
+
+<script>
+    function submitReturn() {
+        const items = [];
+        document.querySelectorAll('.return-qty').forEach(input => {
+            const qty = parseInt(input.value);
+            if (qty > 0) {
+                const id = input.getAttribute('data-id');
+                const isRestock = document.querySelector(`.is-restock[data-id="${id}"]`).checked;
+
+                items.push({
+                    sale_item_id: id,
+                    quantity: qty,
+                    is_restock: isRestock
+                });
+            }
+        });
+
+        if (items.length === 0) {
+            alert("Please select at least one item to return.");
+            return;
+        }
+
+        document.getElementById('returnItemsInput').value = JSON.stringify(items);
+        document.getElementById('returnForm').submit();
+    }
+</script>
+{% endblock %}

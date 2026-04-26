@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add New Medicine{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-pills mr-2"></i>Add New Medicine Definition</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Brand Name</label>
+                                {{ form.name }}
+                                {{ form.name.errors }}
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Generic Name</label>
+                                {{ form.generic_name }}
+                                {{ form.generic_name.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Category</label>
+                                {{ form.category }}
+                                <small class="form-text text-muted">
+                                    Need a new category? Contact Admin or use <a
+                                        href="/admin/pharmacy/medicinecategory/add/" target="_blank">Admin Panel</a>.
+                                </small>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Schedule Type</label>
+                                {{ form.schedule_type }}
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Manufacturer</label>
+                                {{ form.manufacturer }}
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Dosage Form (e.g. Tablet, Syrup)</label>
+                                {{ form.dosage_form }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            {{ form.description }}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Reorder Level (Alert Threshold)</label>
+                            {{ form.reorder_level }}
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'pharmacy:stock_list' %}" class="btn btn-secondary mr-2">Cancel</a>
+                            <button type="submit" class="btn btn-success px-4">Save Medicine</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

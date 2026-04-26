@@ -26,7 +26,7 @@
         <div class="card-body py-3">
             <form method="get" class="form-inline justify-content-between align-items-center">
                 <div class="form-group mb-0">
-                    <label class="mr-3 font-weight-bold text-secondary">Filter Status:</label>
+                    <label class="mr-3 font-weight-bold text-dark">Filter Status:</label>
                     <select name="status" class="custom-select border-0 shadow-sm" style="min-width: 200px;"
                         onchange="this.form.submit()">
                         <option value="">All Equipment</option>
@@ -51,7 +51,7 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle">
-                    <thead class="bg-light text-uppercase text-secondary small">
+                    <thead class="bg-primary text-white text-uppercase font-weight-bold small">
                         <tr>
                             <th class="py-3 px-4 border-0">Asset Details</th>
                             <th class="py-3 px-4 border-0">Category / S.No</th>
@@ -70,9 +70,9 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div>{{ item.category.name|default:"General" }}</div>
-                                <div class="small text-secondary">{{ item.serial_number }}</div>
+                                <div class="small text-dark">{{ item.serial_number }}</div>
                             </td>
-                            <td class="px-4 py-3 text-secondary">{{ item.location }}</td>
+                            <td class="px-4 py-3 text-dark">{{ item.location }}</td>
                             <td class="px-4 py-3">
                                 <div class="font-weight-bold">₹{{ item.current_value|floatformat:2|intcomma }}</div>
                                 <div class="small text-muted" title="Original Cost">Orig: ₹{{ item.cost|intcomma }}

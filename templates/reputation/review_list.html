@@ -22,8 +22,7 @@
                             </div>
                             <div>
                                 <h5 class="font-weight-bold mb-0">{{ review.author_name }}</h5>
-                                <span class="badge badge-pill badge-light text-muted">{{ review.get_platform_display
-                                    }}</span>
+                                <span class="badge badge-pill badge-light text-muted">{{ review.get_platform_display }}</span>
                             </div>
                         </div>
                         <i class="fas fa-quote-right text-black-50 fa-2x opacity-25"></i>
@@ -41,8 +40,7 @@
                 </div>
                 <div class="card-footer bg-transparent border-0 pb-4 px-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted"><i class="far fa-calendar-alt mr-1"></i> {{ review.review_date
-                            }}</small>
+                        <small class="text-muted"><i class="far fa-calendar-alt mr-1"></i> {{ review.review_date }}</small>
                         {% if review.review_url %}
                         <a href="{{ review.review_url }}" target="_blank"
                             class="btn btn-sm btn-outline-primary rounded-pill">View Original</a>

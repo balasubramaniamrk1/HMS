@@ -16,6 +16,25 @@ class Department(models.Model):
     def __str__(self):
         return self.name
 
+    def get_icon_class(self):
+        icon_map = {
+            'Cardiology': 'fas fa-heartbeat',
+            'Cardialogy': 'fas fa-heartbeat',
+            'Urology': 'fas fa-water',
+            'Gynecologist': 'fas fa-female',
+            'Gynecology': 'fas fa-female',
+            'Orthopedics': 'fas fa-bone',
+            'General Medicine': 'fas fa-stethoscope',
+            'Plastic Surgery': 'fas fa-magic',
+            'General Surgery': 'fas fa-hand-holding-medical',
+            'ENT': 'fas fa-ear-listen',
+            'Paediatrics': 'fas fa-child',
+            'Psychiatry': 'fas fa-brain',
+            'Anaesthesia': 'fas fa-vial',
+            'Administration': 'fas fa-user-tie',
+        }
+        return icon_map.get(self.name, 'fas fa-hospital')
+
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile', null=True, blank=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='doctors')
@@ -35,3 +54,13 @@ class Doctor(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_monogram(self):
+        # Remove 'Dr.' or 'Dr ' from the name
+        name_only = self.name.replace('Dr.', '').replace('Dr ', '').strip()
+        parts = name_only.split()
+        if len(parts) >= 2:
+            return f"{parts[0][0]}{parts[-1][0]}".upper()
+        elif parts:
+            return parts[0][:2].upper()
+        return "DR"

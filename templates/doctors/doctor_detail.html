@@ -14,7 +14,7 @@
                 <div class="placeholder-doc-img"></div>
                 {% endif %}
             </div>
-            <a href="#" class="btn-primary full-width">Book Appointment</a>
+            <a href="{% url 'book_appointment' %}?doctor={{ doctor.id }}" class="btn-primary full-width">Book Appointment</a>
         </div>
         <div class="profile-details">
             <h1>{{ doctor.name }}</h1>

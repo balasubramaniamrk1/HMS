@@ -1,304 +1,233 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Screen View -->
-<div class="container mt-5 d-print-none">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Invoice #{{ invoice.id }}</h4>
-                    <span class="badge badge-warning">{{ invoice.status|title }}</span>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <h6 class="text-muted">Billed To:</h6>
-                            <h5>{{ invoice.patient_name }}</h5>
-                            {% if invoice.consultation %}
-                            <p class="mb-0 text-muted">Ref: Consultation #{{ invoice.consultation.id }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="col-6 text-right">
-                            <h6 class="text-muted">Date:</h6>
-                            <p><strong>{{ invoice.date|date:"M d, Y H:i" }}</strong></p>
-                            {% if invoice.doctor %}
-                            <p class="mb-0 text-muted">Dr. {{ invoice.doctor.name }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
+<div class="container mt-4 mb-5">
+    <!-- Action Bar (Screen Only) -->
+    <div class="row d-print-none mb-4 justify-content-center">
+        <div class="col-lg-9 text-center">
+            <button onclick="window.print()" class="btn btn-secondary mr-2 shadow-sm">
+                <i class="fas fa-print mr-2"></i>Print Invoice
+            </button>
 
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Item Description</th>
-                                    <th class="text-center">Qty</th>
-                                    <th class="text-right">Unit Price</th>
-                                    <th class="text-right">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in invoice.items.all %}
-                                <tr>
-                                    <td>{{ item.description }}</td>
-                                    <td class="text-center">{{ item.quantity }}</td>
-                                    <td class="text-right">₹{{ item.unit_price }}</td>
-                                    <td class="text-right">₹{{ item.line_total }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                            <tfoot>
-                                <tr class="bg-light">
-                                    <td colspan="3" class="text-right"><strong>Grand Total:</strong></td>
-                                    <td class="text-right"><strong>₹{{ invoice.total_amount }}</strong></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+            {% if invoice.status == 'pending' %}
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="mark_paid" value="true">
+                <button type="submit" class="btn btn-success mr-2 shadow-sm">
+                    <i class="fas fa-check-double mr-2"></i>Mark as Paid
+                </button>
+            </form>
+            {% endif %}
 
-                    <div class="mt-4 text-center">
-                        <button onclick="window.print()" class="btn btn-secondary mr-2">
-                            <i class="fas fa-print mr-2"></i>Print Invoice
-                        </button>
-
-                        {% if invoice.status == 'pending' %}
-                        <form method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="mark_paid" value="true">
-                            <button type="submit" class="btn btn-success mr-2">
-                                <i class="fas fa-check-double mr-2"></i>Mark as Paid
-                            </button>
-                        </form>
-                        {% endif %}
-
-                        <a href="{% url 'billing:dashboard' %}" class="btn btn-primary">
-                            <i class="fas fa-arrow-left mr-2"></i>Back to Billing
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <a href="{% url 'billing:dashboard' %}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Billing
+            </a>
         </div>
     </div>
-</div>
 
-<!-- Print-Only Invoice -->
-<div id="printInvoice" style="display: none;">
-    <div class="print-wrapper">
-        <table class="invoice-outer" width="100%" cellpadding="0" cellspacing="0">
-            <tr>
-                <td style="padding: 20px;">
-                    <!-- HEADER -->
-                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+    <!-- Professional Invoice (HealthPlus Pharmacy Format) -->
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div id="printInvoice" class="bg-white shadow-sm p-4 p-md-5" style="border: 1px solid #dee2e6;">
+                <div class="print-wrapper-inner">
+                    <!-- HEADER TOP -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border-bottom: 2px solid #000; padding-bottom: 15px;">
                         <tr>
-                            <td width="60%" valign="top">
-                                <h1 style="color: #800000; margin: 0; font-size: 24px; font-weight: bold;">Raagavaa
-                                    Hospital</h1>
-                                <p style="margin: 2px 0;">New Pet, Krishnagiri, Tamil Nadu 635002</p>
-                                <p style="margin: 2px 0;">Phone: 095669 26840</p>
-                                <p style="margin: 2px 0;">GSTIN: 08AALCR2857A1ZD</p>
-                                <p style="margin: 2px 0;">PAN Number: AVHPC9999A</p>
-
-                                <div style="margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;"></div>
+                            <td width="55%" valign="top">
+                                <h1 style="color: #1E3A8A; margin: 0; font-size: 24px; font-weight: bold; text-transform: uppercase;">
+                                    HEALTHPLUS PHARMACY & RETAIL SHOP</h1>
+                                <p style="margin: 4px 0; font-size: 11px; font-weight: 500;">SHOP NO. XXXX, HEALTHPLAZA RESIDENCY, PLOT
+                                    NO. HP-02C,</p>
+                                <p style="margin: 2px 0; font-size: 11px; font-weight: 500;">SEC-TECHZONE-4 GAUTAM BUDDHA VIHAR(Tamilnadu)
+                                </p>
+                                <p style="margin: 8px 0 2px 0; font-size: 11px;"><strong>Phone :</strong> 790636XXXX, 991122XXXX</p>
+                                <p style="margin: 2px 0; font-size: 11px;"><strong>E-Mail :</strong> contact@healthplus.com</p>
                             </td>
-                            <td width="40%" valign="top" align="right">
-                                <h2 style="margin: 0 0 10px 0; font-size: 20px;">TAX INVOICE</h2>
-                                <table width="100%" cellpadding="2">
+                            <td width="10%" align="center" valign="middle">
+                                <div
+                                    style="width: 70px; height: 70px; border: 3px solid #1E3A8A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 28px;">
+                                    <span style="color: #16A34A;">H</span><span style="color: #1E3A8A;">P</span>
+                                </div>
+                            </td>
+                            <td width="35%" valign="top" style="padding-left: 20px;">
+                                <table width="100%" cellpadding="3" style="font-size: 12px; border: 1px solid #000;">
                                     <tr>
-                                        <td align="right"><strong>Invoice No:</strong></td>
-                                        <td align="right">#{{ invoice.id }}</td>
+                                        <td colspan="2" style="background: #f8fafc; border-bottom: 1px solid #000; padding: 4px 8px;">
+                                            <strong>Patient Details</strong></td>
                                     </tr>
                                     <tr>
-                                        <td align="right"><strong>Date:</strong></td>
-                                        <td align="right">{{ invoice.date|date:"d M Y" }}</td>
+                                        <td><strong>Name</strong></td>
+                                        <td>: {{ invoice.patient_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Address</strong></td>
+                                        <td>: --</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Mob.</strong></td>
+                                        <td>: 70655XXXXX</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dr. Name</strong></td>
+                                        <td>: {% if invoice.doctor %}Dr. {{ invoice.doctor.name }}{% else %}--{% endif %}</td>
                                     </tr>
                                 </table>
                             </td>
                         </tr>
                     </table>
 
-                    <!-- BILL TO / SHIP TO -->
+                    <!-- MID HEADER BAR -->
                     <table width="100%" cellpadding="0" cellspacing="0"
-                        style="border: 1px solid #000; margin-bottom: 20px;">
+                        style="border-bottom: 2px solid #000; font-size: 12px; margin-top: 10px;">
                         <tr>
-                            <!-- Bill To -->
-                            <td width="50%" valign="top" style="border-right: 1px solid #000;">
-                                <div
-                                    style="background-color: #800000; color: white; padding: 5px 10px; font-weight: bold; -webkit-print-color-adjust: exact;">
-                                    BILL TO
-                                </div>
-                                <div style="padding: 10px;">
-                                    <!-- Use patient_nm local var to avoid split lines -->
-                                    {% with patient_nm=invoice.patient_name %}
-                                    <strong style="font-size: 16px; display: block; margin-bottom: 5px;">
-                                        {{ patient_nm }}
-                                    </strong>
-                                    {% endwith %}
-
-                                    <div style="color: #555;">
-                                        {% if invoice.consultation and invoice.consultation.appointment.patient %}
-                                        {% with pat=invoice.consultation.appointment.patient %}
-                                        <strong>ID: {{ pat.patient_id }}</strong><br>
-                                        {% endwith %}
-                                        {% elif invoice.pharmacy_sale and invoice.pharmacy_sale.patient %}
-                                        {% with pat=invoice.pharmacy_sale.patient %}
-                                        <strong>ID: {{ pat.patient_id }}</strong><br>
-                                        {% endwith %}
-                                        {% endif %}
-                                        123, Patient Address Line 1<br>
-                                        City, State - Pin Code<br>
-                                        Phone: --
-                                    </div>
-                                </div>
+                            <td width="30%" style="padding: 8px 0;">
+                                <strong>GSTIN :</strong> 09HEALTHXXXXXXXXZA<br>
+                                <strong>D.L.No. :</strong> HP1620000XXXX/HP1621000XXXX
                             </td>
-                            <!-- Ship To -->
-                            <td width="50%" valign="top">
-                                <div
-                                    style="background-color: #800000; color: white; padding: 5px 10px; font-weight: bold; -webkit-print-color-adjust: exact;">
-                                    Doctor's details
-                                </div>
-                                <div style="padding: 10px;">
-                                    <strong style="font-size: 16px; display: block; margin-bottom: 5px;">
-                                        {% if invoice.doctor %}
-                                        {% with doc_name=invoice.doctor.name %}
-                                        {% if doc_name|slice:":3" == "Dr." %}
-                                        {{ doc_name|slice:"4:" }}
-                                        {% elif doc_name|slice:":4" == "Dr. " %}
-                                        {{ doc_name|slice:"4:" }}
-                                        {% else %}
-                                        {{ doc_name }}
-                                        {% endif %}
-                                        {% endwith %}
-                                        {% else %}
-                                        --
-                                        {% endif %}
-                                    </strong>
-                                    <div style="color: #555;">
-                                        Consulted Doctor<br>
-                                        Hospital Internal Code
-                                    </div>
-                                </div>
+                            <td width="40%" align="center">
+                                <h2 style="margin: 0; font-size: 20px; text-decoration: underline; font-weight: bold; color: #1E3A8A;">GST INVOICE
+                                </h2>
+                            </td>
+                            <td width="30%" align="right">
+                                <strong>Invoice No.:</strong> HP-{{ invoice.id|stringformat:"05d" }}<br>
+                                <strong>Date:</strong> {{ invoice.date|date:"d-m-Y" }}<br>
+                                <strong>TIME :</strong> {{ invoice.date|date:"H:i" }}
                             </td>
                         </tr>
                     </table>
 
                     <!-- ITEMS TABLE -->
-                    <table width="100%" cellpadding="8" cellspacing="0"
-                        style="border: 1px solid #000; margin-bottom: 20px; border-collapse: collapse;">
+                    <table width="100%" cellpadding="6" cellspacing="0"
+                        style="border: 1px solid #000; border-collapse: collapse; margin-top: 10px; font-size: 11px;">
                         <thead>
-                            <tr style="background-color: #800000; color: white; -webkit-print-color-adjust: exact;">
-                                <th style="border: 1px solid #000; text-align: left;">Items</th>
-                                <th style="border: 1px solid #000; text-align: center; width: 80px;">Qty</th>
-                                <th style="border: 1px solid #000; text-align: right; width: 100px;">Price/Unit</th>
-                                <th style="border: 1px solid #000; text-align: right; width: 120px;">Tax</th>
-                                <th style="border: 1px solid #000; text-align: right; width: 120px;">Amount</th>
+                            <tr style="background: #f0f9ff; border-bottom: 2px solid #000; font-weight: bold;">
+                                <th style="border-right: 1px solid #000; text-align: center; width: 30px;">SN</th>
+                                <th style="border-right: 1px solid #000; text-align: left;">PRODUCT NAME</th>
+                                <th style="border-right: 1px solid #000; text-align: center; width: 40px;">PACK</th>
+                                <th style="border-right: 1px solid #000; text-align: center; width: 60px;">BATCH</th>
+                                <th style="border-right: 1px solid #000; text-align: center; width: 50px;">HSN</th>
+                                <th style="border-right: 1px solid #000; text-align: center; width: 50px;">EXP.</th>
+                                <th style="border-right: 1px solid #000; text-align: center; width: 30px;">QTY</th>
+                                <th style="border-right: 1px solid #000; text-align: right; width: 60px;">MRP</th>
+                                <th style="border-right: 1px solid #000; text-align: center; width: 60px;">SGST Amt</th>
+                                <th style="border-right: 1px solid #000; text-align: center; width: 60px;">CGST Amt</th>
+                                <th style="text-align: right; width: 80px;">TOTAL</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for item in invoice.items.all %}
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 8px;">
-                                    {{ item.description }}
+                            <tr style="height: 30px;">
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: center;">
+                                    {{ forloop.counter }}</td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; font-weight: 500;">
+                                    {{ item.description|truncatechars:45 }}</td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: center;">1S</td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: center;">B-{{ invoice.id }}24</td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: center;">3004</td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: center;">06/27</td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: center;">
+                                    {{ item.quantity }}</td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: right;">
+                                    {{ item.unit_price|floatformat:2 }}</td>
+                                <td class="sgst-cell" data-total="{{ item.line_total }}" data-rate="{{ item.tax_rate }}"
+                                    style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: right;">
+                                    0.00
                                 </td>
-                                <!-- Short lines for auto-formatter safety -->
-                                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
-                                    {{ item.quantity }}
+                                <td class="cgst-cell" data-total="{{ item.line_total }}" data-rate="{{ item.tax_rate }}"
+                                    style="border-right: 1px solid #000; border-bottom: 1px solid #eee; text-align: right;">
+                                    0.00
                                 </td>
-                                <td style="border: 1px solid #000; padding: 8px; text-align: right;">
-                                    Rs. {{ item.unit_price|floatformat:2 }}
-                                </td>
-                                <td style="border: 1px solid #000; padding: 8px; text-align: right;">
-                                    <strong>{{ item.tax_rate|floatformat:0 }}%</strong><br>
-                                    <small style="color: #666; font-size: 11px;">
-                                        (Rs. {{ item.line_total|floatformat:2 }})
-                                    </small>
-                                </td>
-                                <td style="border: 1px solid #000; padding: 8px; text-align: right;">
-                                    Rs. {{ item.line_total|floatformat:2 }}
-                                </td>
+                                <td style="border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">
+                                    {{ item.line_total|floatformat:2 }}</td>
                             </tr>
                             {% endfor %}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="4" align="right"
-                                    style="border: 1px solid #000; padding: 10px; font-weight: bold;">Sub Total</td>
-                                <td align="right" style="border: 1px solid #000; padding: 10px; font-weight: bold;">
-                                    Rs. {{ invoice.total_amount|floatformat:2 }}
-                                </td>
+                            
+                            <!-- Filler rows to maintain height consistency -->
+                            {% with range=''|center:8 %}
+                            {% for _ in range %}
+                            <tr style="height: 30px;">
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-right: 1px solid #000; border-bottom: 1px solid #fafafa;"></td>
+                                <td style="border-bottom: 1px solid #fafafa;"></td>
                             </tr>
-                        </tfoot>
+                            {% endfor %}
+                            {% endwith %}
+                        </tbody>
                     </table>
 
-                    <!-- FOOTER -->
-                    <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #000;">
+                    <!-- FOOTER SECTION -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #000; font-size: 11px;">
                         <tr>
-                            <!-- Bank Details -->
-                            <td width="55%" valign="top" style="border-right: 1px solid #000; padding: 15px;">
-                                <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">Bank Details</h3>
-                                <p style="margin: 2px 0; font-size: 14px;"><strong>Account holder:</strong> Raagavaa
-                                    Hospital</p>
-                                <p style="margin: 2px 0; font-size: 14px;"><strong>Account number:</strong> 38028101723
-                                </p>
-                                <p style="margin: 2px 0; font-size: 14px;"><strong>Bank:</strong> SBI |
-                                    <strong>Branch:</strong> Jaipur</p>
-                                <p style="margin: 2px 0; font-size: 14px;"><strong>IFSC code:</strong> SBIN0002836</p>
-
-                                <div style="margin-top: 20px;">
-                                    <strong style="display: block; margin-bottom: 5px;">Terms & Conditions:</strong>
-                                    <ol style="margin: 0; padding-left: 20px; font-size: 12px; color: #444;">
-                                        <li>Customer will pay the GST.</li>
-                                        <li>Goods once sold will not be taken back.</li>
-                                        <li>Subject to Jaipur Jurisdiction.</li>
-                                    </ol>
+                            <td width="65%" valign="top" style="border-right: 1px solid #000;">
+                                <div style="border-bottom: 1px solid #000; padding: 8px; background: #fafafa;">
+                                    <strong>GST INVOICE ** HEALTH IS WEALTH ** GET WELL SOON **</strong>
+                                </div>
+                                <div style="padding: 15px;">
+                                    <strong>Terms & Conditions</strong><br>
+                                    1. Goods once sold will be not taken back or exchanged.<br>
+                                    2. Bills not paid on due date will attract 24% interest.<br>
+                                    3. All disputes subject to Health District Jurisdiction only.<br>
+                                    4. Prescribed Sales Tax declaration will be provided as required.
+                                </div>
+                                <div style="padding: 10px 15px; border-top: 1px solid #000; font-style: italic; color: #555;">
+                                    <strong>Remark:</strong> Please share payment confirmation screenshot for faster processing.
+                                </div>
+                                <div style="background: #f1f5f9; padding: 8px 15px; border-top: 1px solid #000; font-weight: bold; font-size: 12px; color: #1E3A8A;">
+                                    Amount in words: <span id="amountInWords">Rupees {{ invoice.grand_total|floatformat:2 }} Only</span>
                                 </div>
                             </td>
-                            <!-- Totals -->
-                            <td width="45%" valign="top">
-                                <table width="100%" cellpadding="8" cellspacing="0">
+                            <td width="35%" valign="top">
+                                <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 13px;">
                                     <tr>
-                                        <td style="border-bottom: 1px solid #ccc;">Taxable Amount</td>
-                                        <td align="right" style="border-bottom: 1px solid #ccc; font-weight: bold;">Rs.
-                                            {{ invoice.total_amount|floatformat:2 }}</td>
+                                        <td style="border-bottom: 1px solid #eee;"><strong>SUB TOTAL</strong></td>
+                                        <td align="right" style="border-bottom: 1px solid #eee;">{{ invoice.total_amount|floatformat:2 }}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border-bottom: 1px solid #ccc;">CGST @ 2.5%</td>
-                                        <td align="right" style="border-bottom: 1px solid #ccc;">
-                                            Rs. {{ invoice.cgst|floatformat:2 }}
-                                        </td>
+                                        <td style="border-bottom: 1px solid #eee;"><strong>CGST TOTAL</strong></td>
+                                        <td align="right" style="border-bottom: 1px solid #eee;">{{ invoice.cgst|floatformat:2 }}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border-bottom: 1px solid #ccc;">SGST @ 2.5%</td>
-                                        <td align="right" style="border-bottom: 1px solid #ccc;">
-                                            Rs. {{ invoice.sgst|floatformat:2 }}
-                                        </td>
+                                        <td style="border-bottom: 1px solid #eee;"><strong>SGST TOTAL</strong></td>
+                                        <td align="right" style="border-bottom: 1px solid #eee;">{{ invoice.sgst|floatformat:2 }}</td>
                                     </tr>
                                     <tr>
-                                        <td
-                                            style="background-color: #f0f0f0; font-weight: bold; border-top: 2px solid #000; font-size: 16px;">
-                                            Total Amount</td>
-                                        <td align="right"
-                                            style="background-color: #f0f0f0; font-weight: bold; border-top: 2px solid #000; font-size: 16px;">
-                                            Rs. {{ invoice.grand_total|floatformat:2 }}
+                                        <td style="border-bottom: 1px solid #eee;"><strong>DISCOUNT</strong></td>
+                                        <td align="right" style="border-bottom: 1px solid #eee;">0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="2" align="center" style="vertical-align: middle; padding: 10px;">
+                                            <div style="width: 80px; height: 80px; border: 1px solid #e2e8f0; padding: 5px; background: white;">
+                                                <i class="fas fa-qrcode" style="font-size: 70px; color: #1E3A8A;"></i>
+                                                <div style="font-size: 8px; margin-top: 4px; color: #64748b;">Scan to Pay</div>
+                                            </div>
                                         </td>
+                                        <td style="height: 50px;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" valign="bottom" style="font-size: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                                            <strong>For HEALTHPLUS PHARMACY</strong><br><br><br>
+                                            Authorised Signatory
+                                        </td>
+                                    </tr>
+                                    <tr style="background: #f0f9ff;">
+                                        <td style="border-top: 2px solid #000;"><strong>GRAND TOTAL</strong></td>
+                                        <td align="right" style="border-top: 2px solid #000; font-weight: bold; font-size: 16px; color: #1E3A8A;">{{ invoice.grand_total|floatformat:2 }}</td>
                                     </tr>
                                 </table>
-
-                                <div style="text-align: right; padding: 60px 20px 20px 20px;">
-                                    <p style="margin: 0; font-size: 12px;">Authorised Signatory For</p>
-                                    <strong style="color: #800000; font-size: 14px;">Raagavaa Hospital</strong>
-                                </div>
                             </td>
                         </tr>
                     </table>
-
-                    <div
-                        style="margin-top: 40px; border-top: 1px dashed #000; padding-top: 10px; text-align: center; font-size: 12px;">
-                        This is a computer generated invoice.
-                    </div>
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -309,55 +238,105 @@
             size: auto;
         }
 
-        body * {
-            visibility: hidden;
-            height: 0;
-            overflow: hidden;
+        /* Hide everything by default */
+        header, footer, aside, .d-print-none, .btn-group, .navbar, .app-sidebar {
+            display: none !important;
         }
 
-        #printInvoice,
-        #printInvoice * {
-            visibility: visible;
-            height: auto;
-            overflow: visible;
+        /* Reset main container for full-width printing */
+        .app-container, .app-main-content, .container {
+            display: block !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+            box-shadow: none !important;
+            border: none !important;
         }
 
+        /* Ensure the print section is visible and properly positioned */
         #printInvoice {
             display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            z-index: 9999;
+            visibility: visible !important;
+            position: relative !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
         }
 
         div.print-wrapper {
             border: 2px solid #000;
-            height: 98vh;
-            /* Adjusted from min-height: 95vh to fixed height to force border */
+            min-height: 98vh;
             box-sizing: border-box;
-            padding: 10px;
+            padding: 20px;
         }
 
-        /* Container Ref Resets */
-        .container,
-        .container-fluid,
-        header,
-        footer,
-        .card,
-        aside,
-        .d-print-none {
-            display: none !important;
-        }
-
-        /* Force Backgrounds */
+        /* Force Background Colors */
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            color-adjust: exact !important;
         }
     }
 </style>
+
+<script>
+    function numberToWords(num) {
+        const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+        function g(n) {
+            if (n < 20) return a[n];
+            let s = b[Math.floor(n / 10)];
+            if (n % 10) s += ' ' + a[n % 10];
+            return s;
+        }
+
+        function h(n) {
+            if (n < 100) return g(n);
+            let s = a[Math.floor(n / 100)] + ' Hundred';
+            if (n % 100) s += ' and ' + g(n % 100);
+            return s;
+        }
+
+        function i(n) {
+            if (n < 1000) return h(n);
+            let s = h(Math.floor(n / 1000)) + ' Thousand';
+            if (n % 1000) s += (n % 1000 < 100 ? ' and ' : ' ') + h(n % 1000);
+            return s;
+        }
+
+        function j(n) {
+            if (n < 100000) return i(n);
+            let s = h(Math.floor(n / 100000)) + ' Lakh';
+            if (n % 100000) s += (n % 100000 < 1000 ? ' and ' : ' ') + i(n % 100000);
+            return s;
+        }
+
+        if (num === 0) return 'Zero';
+        let str = j(Math.floor(num));
+        let paise = Math.round((num - Math.floor(num)) * 100);
+        let res = 'Rupees ' + str;
+        if (paise > 0) {
+            res += ' and ' + g(paise) + ' Paise';
+        }
+        return res + ' Only';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calculate GST Amounts
+        document.querySelectorAll('.sgst-cell, .cgst-cell').forEach(cell => {
+            const total = parseFloat(cell.dataset.total);
+            const rate = parseFloat(cell.dataset.rate);
+            const gstAmount = (total * (rate / 200)).toFixed(2);
+            cell.textContent = gstAmount;
+        });
+
+        // Convert Total to Words
+        const grandTotal = parseFloat("{{ invoice.grand_total }}");
+        const words = numberToWords(grandTotal || 0);
+        const amountDisplay = document.getElementById('amountInWords');
+        if (amountDisplay) amountDisplay.textContent = words;
+    });
+</script>
 {% endblock %}

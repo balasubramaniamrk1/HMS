@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-boxes mr-2"></i>Pharmacy Inventory</h2>
+        <div>
+            {% if is_doctor %}
+            <a href="{% url 'doctor_console' %}" class="btn btn-warning mr-2"
+                style="background-color: #ffc107; color: black; border: none;">
+                <i class="fas fa-user-md mr-2"></i>Back to Doctor Console
+            </a>
+            {% endif %}
+            <a href="{% url 'pharmacy:dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>Back into Dashboard
+            </a>
+            {% if not is_doctor %}
+            <a href="{% url 'pharmacy:stock_entry_create' %}" class="btn btn-success ml-2">
+                <i class="fas fa-plus mr-2"></i>New Stock Entry
+            </a>
+            <a href="{% url 'pharmacy:medicine_create' %}" class="btn btn-primary ml-2">
+                <i class="fas fa-pills mr-2"></i>Add Medicine
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if low_stock_medicines %}
+    <div class="alert alert-danger shadow-sm">
+        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle mr-2"></i>Low Stock Alerts</h5>
+        <ul class="mb-0 pl-3">
+            {% for med in low_stock_medicines %}
+            <li>
+                <strong>{{ med.name }}</strong> (Current: {{ med.total_quantity }}, Reorder Level: {{ med.reorder_level
+                }})
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <input type="text" id="stockSearch" class="form-control" placeholder="Search medicines, batch numbers...">
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="stockTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Category</th>
+                            <th>Batch No</th>
+                            <th>Expiry</th>
+                            <th>Quantity</th>
+                            <th>Price (MRP)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for batch in batches %}
+                        <tr>
+                            <td>
+                                <strong>{{ batch.medicine.name }}</strong><br>
+                                <small class="text-muted">{{ batch.medicine.generic_name }}</small>
+                            </td>
+                            <td>{{ batch.medicine.category.name|default:"-" }}</td>
+                            <td>{{ batch.batch_number }}</td>
+                            <td>{{ batch.expiry_date }}</td>
+                            <td>
+                                <strong>{{ batch.quantity }}</strong>
+                            </td>
+                            <td>₹{{ batch.sell_price }}</td>
+                            <td>
+                                {% if batch.is_expired %}
+                                <span class="badge badge-danger">Expired</span>
+                                {% elif batch.quantity == 0 %}
+                                <span class="badge badge-secondary">Out of Stock</span>
+                                {% else %}
+                                <span class="badge badge-success">Available</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No inventory records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('stockSearch').addEventListener('keyup', function () {
+        const query = this.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#stockTable tbody tr');
+
+        rows.forEach(row => {
+            // Target the first column (Medicine Name) specifically
+            // The structure is <td><strong>Name</strong><br><small>Generic</small></td>
+            // row.cells[0].textContent gets "NameGeneric" content.
+            // Let's refine to get just the strong tag or use the whole cell startsWith logic
+
+            const medNameCell = row.cells[0];
+            if (medNameCell) {
+                // Get just the medicine name text, ignoring the generic name in small tag if possible
+                // actually textContent usually merges them. "ParacetamolParamol".
+                // We want to match "Paracetamol" starting with query.
+                // A safer bet is checking if the cell text content starts with query, 
+                // but ignoring whitespace.
+
+                const text = medNameCell.textContent.toLowerCase().trim();
+
+                // User asked for "start typing medicine name... list only that medicine".
+                // AND "sequence manner" -> startsWith.
+                if (text.startsWith(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

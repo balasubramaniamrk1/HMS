@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-weight-bold text-dark mb-1">Vendor Directory</h2>
+            <p class="text-muted">Manage external suppliers and service providers.</p>
+        </div>
+        <div>
+            <a href="{% url 'inventory_dashboard' %}" class="btn btn-outline-secondary mr-2">
+                <i class="fas fa-arrow-left mr-1"></i> Dashboard
+            </a>
+            <a href="{% url 'add_vendor' %}" class="btn btn-success shadow-sm">
+                <i class="fas fa-plus mr-1"></i> Add Vendor
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="bg-light text-uppercase text-secondary small">
+                        <tr>
+                            <th class="py-3 px-4 border-0">Vendor Name</th>
+                            <th class="py-3 px-4 border-0">Contact Person</th>
+                            <th class="py-3 px-4 border-0">Contact Info</th>
+                            <th class="py-3 px-4 border-0">Rating</th>
+                            <th class="py-3 px-4 border-0 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vendor in vendors %}
+                        <tr>
+                            <td class="px-4 py-3 font-weight-bold text-dark">
+                                {{ vendor.name }}
+                                {% if vendor.website %}
+                                <a href="{{ vendor.website }}" target="_blank" class="small text-primary ml-1"><i
+                                        class="fas fa-external-link-alt"></i></a>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-secondary">{{ vendor.contact_person }}</td>
+                            <td class="px-4 py-3">
+                                <div><i class="fas fa-phone-alt text-muted mr-1"></i> {{ vendor.phone }}</div>
+                                <div><i class="fas fa-envelope text-muted mr-1"></i> {{ vendor.email }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-warning">
+                                {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= vendor.rating %} <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-muted"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <a href="{% url 'edit_vendor' vendor.id %}"
+                                    class="btn btn-sm btn-outline-primary rounded-circle shadow-sm" title="Edit">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">No vendors added yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

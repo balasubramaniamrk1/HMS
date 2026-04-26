@@ -4,27 +4,36 @@
 {% block title %}Departments{% endblock %}
 
 {% block content %}
-<section class="page-header">
-    <div class="container">
-        <h1>Centers of Excellence</h1>
-        <p>Comprehensive care across key medical specialities.</p>
+<section class="hero-dept-banner fade-in">
+    <div class="container text-center">
+        <h1 class="display-4 font-weight-bold mb-3">Centers of Excellence</h1>
+        <p class="lead">Comprehensive care across key medical specialities, supported by world-class technology and experts.</p>
     </div>
 </section>
 
 <section class="container section-padding">
     <div class="grid-3">
         {% for dept in departments %}
-        <div class="dept-card">
-            <div class="icon-box">
+        <div class="card premium-dept-card">
+            <div class="icon-wrapper">
                 {% if dept.icon %}
-                <img src="{{ dept.icon.url }}" alt="{{ dept.name }}">
+                <img src="{{ dept.icon.url }}" alt="{{ dept.name }}" class="dept-img">
                 {% else %}
-                <span class="placeholder-icon">{{ dept.name|slice:":1" }}</span>
+                <div class="placeholder-icon-circle">
+                    {% if "Cardialogy" in dept.name %}<i class="fas fa-heartbeat"></i>
+                    {% elif "Urology" in dept.name %}<i class="fas fa-user-md"></i>
+                    {% elif "Gynecologist" in dept.name %}<i class="fas fa-female"></i>
+                    {% elif "Orthopedics" in dept.name %}<i class="fas fa-bone"></i>
+                    {% elif "General Medicine" in dept.name %}<i class="fas fa-stethoscope"></i>
+                    {% else %}{{ dept.name|slice:":1" }}{% endif %}
+                </div>
                 {% endif %}
             </div>
-            <h3>{{ dept.name }}</h3>
-            <p>{{ dept.description|truncatewords:20 }}</p>
-            <a href="{% url 'department_detail' dept.slug %}" class="learn-more">View Details &rarr;</a>
+            <div class="card-body text-center">
+                <h4 class="font-weight-bold text-primary mb-3">{{ dept.name }}</h4>
+                <p class="text-muted">{{ dept.description|truncatewords:15 }}</p>
+                <a href="{% url 'department_detail' dept.slug %}" class="btn btn-outline-primary btn-sm rounded-pill px-4 mt-3">View Details <i class="fas fa-arrow-right ml-1"></i></a>
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -33,19 +42,119 @@
 
 {% block extra_css %}
 <style>
-    .page-header {
-        background: var(--primary-color);
+    /* Hero Banner for Departments */
+    .hero-dept-banner {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #1a4a7a 100%);
         color: white;
-        padding: 40px 0;
-        text-align: center;
+        padding: 60px 0 40px 0; /* Reduced padding for smaller banner */
+        margin-top: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-dept-banner::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: var(--brand-white);
+        clip-path: polygon(0 100%, 100% 100%, 100% 0, 0 100%);
     }
 
-    .learn-more {
-        color: var(--primary-color);
-        font-weight: 600;
-        text-decoration: none;
+    .badge-premium {
+        background: rgba(255, 255, 255, 0.15);
+        color: var(--secondary-color);
+        padding: 6px 18px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
         display: inline-block;
-        margin-top: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .hero-dept-banner h1 {
+        color: white;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .hero-dept-banner p.lead {
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+
+    /* Premium Department Grid */
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: -30px; /* Pull up into the banner slightly */
+        position: relative;
+        z-index: 10;
+        padding-bottom: 60px;
+    }
+
+    .premium-dept-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .premium-dept-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon-wrapper {
+        background: var(--light-bg);
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #eee;
+    }
+
+    .dept-img {
+        max-height: 100px;
+        max-width: 140px;
+        object-fit: contain;
+    }
+
+    .placeholder-icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    
+    .premium-dept-card .card-body {
+        padding: 30px 20px;
+    }
+
+    .premium-dept-card h4 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+
+    .premium-dept-card p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
     }
 </style>
 {% endblock %}

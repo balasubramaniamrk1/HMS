@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Hospital Administration{% endblock %}
+
+{% block content %}
+<style>
+    .stat-card {
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+        color: white;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card .card-body {
+        padding: 1.25rem;
+    }
+
+    .stat-card .display-icon {
+        opacity: 0.2;
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        font-size: 3rem;
+    }
+
+    .stat-card h5 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card .count {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .stat-card-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding-top: 10px;
+        display: block;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        margin-top: 10px;
+    }
+
+    .stat-card-link:hover {
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Gradients */
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(45deg, #28a745, #1e7e34);
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(45deg, #17a2b8, #117a8b);
+    }
+
+    .bg-gradient-warning {
+        background: linear-gradient(45deg, #ffc107, #d39e00);
+    }
+
+    .bg-gradient-danger {
+        background: linear-gradient(45deg, #dc3545, #bd2130);
+    }
+
+    .bg-gradient-purple {
+        background: linear-gradient(45deg, #6f42c1, #563d7c);
+    }
+
+    .action-card {
+        border-radius: 10px;
+        border: 1px solid #eee;
+    }
+
+    .action-card .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #f0f0f0;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .list-group-item {
+        border-color: #f0f0f0;
+        transition: background-color 0.2s;
+        font-size: 0.95rem;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="text-dark"><i class="fas fa-hospital-alt mr-2"></i>Administration</h4>
+        <span class="text-muted small">Overview</span>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3">
+        <!-- Doctors -->
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-gradient-primary h-100">
+                <div class="card-body">
+                    <i class="fas fa-user-md display-icon"></i>
+                    <h5>Doctors</h5>
+                    <div class="count">{{ total_doctors }}</div>
+                    <a href="{% url 'doctor_list' %}" class="stat-card-link">View Details <i
+                            class="fas fa-arrow-right float-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff -->
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-gradient-success h-100">
+                <div class="card-body">
+                    <i class="fas fa-users display-icon"></i>
+                    <h5>Total Staff</h5>
+                    <div class="count">{{ total_staff }}</div>
+                    <a href="{% url 'staff_list' %}" class="stat-card-link">Manage Staff <i
+                            class="fas fa-arrow-right float-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packages -->
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-gradient-info h-100">
+                <div class="card-body">
+                    <i class="fas fa-notes-medical display-icon"></i>
+                    <h5>Packages</h5>
+                    <div class="count">{{ active_packages }}</div>
+                    <span class="stat-card-link">Active Plans</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Departments -->
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-gradient-warning h-100">
+                <div class="card-body">
+                    <i class="fas fa-building display-icon"></i>
+                    <h5>Departments</h5>
+                    <div class="count">{{ departments_count }}</div>
+                    <a href="{% url 'department_list' %}" class="stat-card-link">Manage <i
+                            class="fas fa-arrow-right float-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery Stats -->
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-gradient-purple h-100">
+                <div class="card-body">
+                    <i class="fas fa-images display-icon"></i>
+                    <h5>Gallery</h5>
+                    <!-- If we had a count, we could show it here, for now simpler link -->
+                    <div class="count" style="font-size: 1.5rem;">Manage</div>
+                    <a href="{% url 'gallery_list' %}" class="stat-card-link">Update Photos <i
+                            class="fas fa-arrow-right float-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <!-- Quick Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card action-card shadow-sm h-100">
+                <div class="card-header py-3">
+                    <i class="fas fa-bolt text-warning mr-2"></i> Quick Actions
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'staff_create' %}" class="list-group-item list-group-item-action text-dark">
+                        <i class="fas fa-user-plus mr-3 text-primary"></i> Add Staff Member
+                    </a>
+                    <a href="{% url 'doctor_create' %}" class="list-group-item list-group-item-action text-dark">
+                        <i class="fas fa-stethoscope mr-3 text-success"></i> Add Doctor
+                    </a>
+                    <a href="{% url 'department_list' %}" class="list-group-item list-group-item-action text-dark">
+                        <i class="fas fa-layer-group mr-3 text-info"></i> Departments
+                    </a>
+                    <a href="{% url 'shift_list' %}" class="list-group-item list-group-item-action text-dark">
+                        <i class="fas fa-clock mr-3 text-warning"></i> Shift Timings
+                    </a>
+                    <a href="{% url 'gallery_upload' %}" class="list-group-item list-group-item-action text-dark">
+                        <i class="fas fa-camera mr-3 text-purple" style="color: #6f42c1;"></i> Upload Photo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Staff -->
+        <div class="col-lg-8 mb-4">
+            <div class="card action-card shadow-sm h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-history text-muted mr-2"></i> Recently Joined</span>
+                    <a href="{% url 'staff_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" style="font-size: 0.9rem;">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-top-0 pl-4">Name</th>
+                                    <th class="border-top-0">Department</th>
+                                    <th class="border-top-0">Designation</th>
+                                    <th class="border-top-0">Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for staff in recent_staff %}
+                                <tr>
+                                    <td class="pl-4 font-weight-bold text-dark">{{ staff.user.get_full_name }}</td>
+                                    <td><span class="badge badge-light border">{{ staff.department }}</span></td>
+                                    <td>{{ staff.designation }}</td>
+                                    <td class="text-muted">{{ staff.joining_date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No recently joined staff.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 font-weight-bold"><i class="fas fa-file-invoice mr-2"></i>New Purchase Order</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" id="poForm">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Vendor</label>
+                                <select name="vendor" class="form-control" required>
+                                    <option value="">Select Vendor...</option>
+                                    {% for v in vendors %}
+                                    <option value="{{ v.id }}">{{ v.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Expected Delivery Date</label>
+                                <input type="date" name="expected_date" class="form-control">
+                            </div>
+                        </div>
+
+                        <h6 class="font-weight-bold mt-4 mb-3 border-bottom pb-2">Items</h6>
+                        <table class="table table-bordered text-center" id="itemTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th width="40%">Medicine</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%">Unit Price (Est.)</th>
+                                    <th width="10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemBody">
+                                <!-- Rows will be added dynamically -->
+                            </tbody>
+                        </table>
+
+                        <div class="text-right mb-4">
+                            <button type="button" class="btn btn-sm btn-info" onclick="addItem()">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        </div>
+
+                        <input type="hidden" name="items_json" id="itemsJson">
+
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'pharmacy:purchase_order_list' %}" class="btn btn-secondary mr-2">Cancel</a>
+                            <button type="submit" class="btn btn-success px-5 font-weight-bold"
+                                onclick="prepareSubmit(event)">Create Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let medicines = []; // Defined via server-side iteration loop in the function below
+
+    function addItem() {
+        const row = `
+    <tr>
+        <td>
+            <select class="form-control item-select" required>
+                <option value="">Select Medicine...</option>
+                {% for med in medicines %}
+                <option value="{{ med.id }}">{{ med.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td>
+            <input type="number" class="form-control item-qty" min="1" value="1" required>
+        </td>
+        <td>
+            <input type="number" step="0.01" class="form-control item-price" value="0.00" required>
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button>
+        </td>
+    </tr>
+    `;
+        document.getElementById('itemBody').insertAdjacentHTML('beforeend', row);
+    }
+
+    // Add one empty row on load
+    document.addEventListener('DOMContentLoaded', addItem);
+
+    function prepareSubmit(e) {
+        const rows = document.querySelectorAll('#itemBody tr');
+        let items = [];
+
+        rows.forEach(row => {
+            const medId = row.querySelector('.item-select').value;
+            const qty = row.querySelector('.item-qty').value;
+            const price = row.querySelector('.item-price').value;
+
+            if (medId && qty) {
+                items.push({
+                    medicine_id: medId,
+                    quantity: qty,
+                    price: price
+                });
+            }
+        });
+
+        if (items.length === 0) {
+            e.preventDefault();
+            alert('Please add at least one item.');
+            return;
+        }
+
+        document.getElementById('itemsJson').value = JSON.stringify(items);
+    }
+</script>
+{% endblock %}

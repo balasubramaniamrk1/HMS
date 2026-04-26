@@ -8,10 +8,13 @@ def doctor_list(request):
     if dept_slug:
         doctors = doctors.filter(department__slug=dept_slug)
         
-    specialities = Department.objects.all()
+    from django.db.models import Count
+    specialities = Department.objects.annotate(doctor_count=Count('doctors')).exclude(name='Administration').all()
+    total_doctors = doctors.count()
     context = {
         'doctors': doctors,
         'specialities': specialities,
+        'total_doctors': total_doctors,
         'selected_dept': dept_slug,
     }
     return render(request, 'doctors/doctor_list.html', context)

@@ -5,7 +5,7 @@
 
 {% block content %}
 <section class="hero-modern fade-in">
-    <div class="container">
+    <div class="container-fluid px-5">
         <div class="hero-text">
             <span class="badge-premium">Top Rated Hospital</span>
             <h1>World-Class Care, <span class="highlight-text">Personalized for You</span></h1>
@@ -38,7 +38,7 @@
     </div>
 </section>
 
-<section class="services-modern container">
+<section class="services-modern container-fluid px-5">
     <div class="section-title text-center mb-5">
         <span class="sub-title">What We Offer</span>
         <h2>Comprehensive Healthcare Services</h2>
@@ -75,7 +75,7 @@
 
 {% if departments %}
 <section class="depts-modern section-padding bg-light-alt">
-    <div class="container">
+    <div class="container-fluid px-5">
         <div class="d-flex justify-content-between align-items-end mb-5">
             <div>
                 <span class="sub-title">Centers of Excellence</span>
@@ -103,34 +103,45 @@
 </section>
 {% endif %}
 
-{% if doctors %}
-<section class="doctors-modern container section-padding">
+<section class="experts-minimal container-fluid px-5 section-padding">
     <div class="section-title text-center mb-5">
-        <span class="sub-title">Meet Our Team</span>
+        <span class="sub-title">Expert Consultation</span>
         <h2>Trusted Medical Experts</h2>
         <div class="title-line"></div>
     </div>
 
-    <div class="grid-4">
-        {% for doc in doctors %}
-        <div class="card doctor-card-modern">
-            <div class="doc-img-wrapper">
-                {% if doc.photo %}
-                <img src="{{ doc.photo.url }}" alt="{{ doc.name }}">
-                {% else %}
-                <div class="placeholder-doc-img"></div>
+    <div class="minimal-expert-grid">
+        {% for doctor in featured_doctors %}
+        <div class="expert-minimal-card">
+            <div class="expert-monogram">{{ doctor.get_monogram }}</div>
+            <div class="expert-body">
+                <h4>{{ doctor.name }}</h4>
+                <p class="expert-degree">{{ doctor.qualifications }}</p>
+                <div class="expert-badges">
+                    <span class="exp-pill">{{ doctor.experience_years }}+ Years Exp</span>
+                </div>
+                {% if doctor.specialization %}
+                <div class="expert-skills">
+                    {% with skills=doctor.specialization|cut:" " %}
+                        {% for skill in doctor.specialization.split|slice:":3" %}
+                            {# Split by comma if possible, otherwise just use words #}
+                        {% endfor %}
+                    {% endwith %}
+                    
+                    {# Simplified: Just show the first 3 words or split by comma #}
+                    {% for skill in doctor.specialization.split|slice:":3" %}
+                         <span>{{ skill|cut:"," }}</span>
+                    {% endfor %}
+                </div>
                 {% endif %}
-            </div>
-            <div class="doc-body">
-                <h5>{{ doc.name }}</h5>
-                <span class="speciality-badge">{{ doc.specialization }}</span>
-                <a href="#" class="btn-sm-profile">View Profile</a>
+                <a href="{% url 'doctor_detail' doctor.slug %}" class="btn btn-link btn-sm mt-3">View Profile</a>
             </div>
         </div>
+        {% empty %}
+        <p class="text-center w-100">No featured doctors found.</p>
         {% endfor %}
     </div>
 </section>
-{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -139,20 +150,21 @@
     .hero-modern {
         display: flex;
         align-items: center;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 50px 0;
+        background: var(--brand-white);
+        padding: 50px 5%;
         min-height: 700px;
         position: relative;
         overflow: hidden;
     }
 
-    .hero-modern .container {
+    .hero-modern .container-fluid {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 40px;
         position: relative;
         z-index: 2;
+        width: 100%;
     }
 
     .hero-text {
@@ -306,11 +318,11 @@
 
     /* Depts Modern */
     .bg-light-alt {
-        background-color: #F1FAEE;
+        background-color: var(--brand-white);
     }
 
     .section-padding {
-        padding: 80px 0;
+        padding: 80px 5%;
     }
 
     .dept-card-modern {
@@ -338,50 +350,123 @@
         font-weight: bold;
     }
 
-    /* Doctors Modern */
-    .doctor-card-modern {
-        overflow: hidden;
+    /* Experts Minimalist Showcase */
+    .experts-minimal {
+        background: #ffffff;
+        padding-top: 80px;
+        padding-bottom: 80px;
     }
 
-    .doc-img-wrapper {
-        height: 250px;
-        background: #ddd;
-        position: relative;
+    .minimal-expert-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
     }
 
-    .doc-img-wrapper img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .doc-body {
-        padding: 20px;
+    .expert-minimal-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
     }
 
-    .speciality-badge {
-        display: block;
-        color: var(--accent-color);
+    .expert-minimal-card:hover {
+        background: #ffffff;
+        border-color: var(--primary-color);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        transform: translateY(-5px);
+    }
+
+    .expert-monogram {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .expert-body h4 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 5px;
+    }
+
+    .expert-degree {
         font-size: 0.85rem;
-        font-weight: 600;
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .expert-badges {
         margin-bottom: 15px;
     }
 
-    .btn-sm-profile {
-        font-size: 0.85rem;
-        color: var(--text-color);
-        border: 1px solid #ddd;
-        padding: 5px 15px;
-        border-radius: 20px;
-        text-decoration: none;
-        transition: all 0.2s;
+    .exp-pill {
+        background: #eff6ff;
+        color: var(--primary-color);
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1px solid #dbeafe;
     }
 
-    .btn-sm-profile:hover {
-        background: var(--primary-color);
+    .expert-skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .expert-skills span {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    /* Hot Reload Tip */
+    .reload-tip {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #0f172a;
         color: white;
-        border-color: var(--primary-color);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        z-index: 1000;
+        display: none;
+    }
+
+    @media (max-width: 1200px) {
+        .minimal-expert-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 991px) {
+        .minimal-expert-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 576px) {
+        .minimal-expert-grid { grid-template-columns: 1fr; }
+        .premium-heading { font-size: 2.25rem; }
     }
 </style>
 {% endblock %}

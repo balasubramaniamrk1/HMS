@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Medical History: {{ patient.name }} | HMS{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <header class="history-header">
+        <div class="patient-profile">
+            <div class="avatar-monogram">{{ patient.name|slice:":1" }}</div>
+            <div class="profile-info">
+                <h1>{{ patient.name }}</h1>
+                <div class="meta-pills">
+                    <span class="pill id-pill">{{ patient.patient_id }}</span>
+                    <span class="pill age-pill">{{ patient.age }} Years</span>
+                    <span class="pill gender-pill">{{ patient.get_gender_display }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="contact-card">
+            <div class="contact-item">
+                <i class="fas fa-phone-alt"></i>
+                <span>{{ patient.phone }}</span>
+            </div>
+            {% if patient.address %}
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ patient.address }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="history-content">
+        <div class="section-label">
+            <i class="fas fa-history"></i>
+            <h2>Longitudinal Medical Record</h2>
+        </div>
+
+        <div class="timeline-wrapper">
+            {% for consult in consultations %}
+            <div class="timeline-item">
+                <div class="timeline-date">
+                    <span class="day">{{ consult.consultation_date|date:"d" }}</span>
+                    <span class="month">{{ consult.consultation_date|date:"M Y" }}</span>
+                </div>
+                <div class="timeline-marker"></div>
+                <div class="timeline-card">
+                    <div class="card-header">
+                        <div class="dr-info">
+                            <i class="fas fa-user-md"></i>
+                            <strong>Dr. {{ consult.appointment.doctor.name }}</strong>
+                            <small>{{ consult.appointment.doctor.speciality.name }}</small>
+                        </div>
+                        <div class="actions">
+                            <a href="{% url 'consultation_detail' consult.pk %}" class="btn-text">View Details</a>
+                            <a href="{% url 'download_prescription_pdf' consult.pk %}" class="btn-icon" title="Download Prescription">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="diag-block">
+                            <label>Diagnosis</label>
+                            <p>{{ consult.diagnosis }}</p>
+                        </div>
+                        {% if consult.prescription_items.exists %}
+                        <div class="rx-block">
+                            <label>Prescribed Medication</label>
+                            <ul class="rx-list">
+                                {% for item in consult.prescription_items.all %}
+                                <li>
+                                    <span class="med-name">{{ item.medicine_name }}</span>
+                                    <span class="med-dose">{{ item.dosage }}</span>
+                                    <span class="med-dur">for {{ item.duration }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% if consult.doctor_notes %}
+                        <div class="notes-block">
+                            <label>Clinical Notes</label>
+                            <p>{{ consult.doctor_notes }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if consult.next_visit_date %}
+                    <div class="card-footer">
+                        <span class="follow-up">
+                            <i class="fas fa-calendar-check"></i>
+                            Next Visit: {{ consult.next_visit_date|date:"d M Y" }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-history">
+                <i class="fas fa-folder-open"></i>
+                <p>No prior medical consultations recorded for this patient.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .history-header {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 40px;
+    }
+
+    .patient-profile {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .avatar-monogram {
+        width: 70px;
+        height: 70px;
+        background: #3b82f6;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .profile-info h1 {
+        margin: 0 0 10px;
+        font-size: 1.75rem;
+        color: #1e293b;
+    }
+
+    .meta-pills {
+        display: flex;
+        gap: 10px;
+    }
+
+    .pill {
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .id-pill { background: #f1f5f9; color: #475569; }
+    .age-pill { background: #ecfdf5; color: #065f46; }
+    .gender-pill { background: #eff6ff; color: #1d4ed8; }
+
+    .contact-card {
+        text-align: right;
+    }
+
+    .contact-item {
+        margin-bottom: 5px;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .contact-item i {
+        margin-right: 8px;
+        width: 15px;
+    }
+
+    /* Timeline Styles */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+    .section-label i { color: #3b82f6; font-size: 1.2rem; }
+    .section-label h2 { font-size: 1.25rem; font-weight: 700; margin: 0; color: #334155; }
+
+    .timeline-wrapper {
+        position: relative;
+        padding-left: 100px;
+    }
+
+    .timeline-wrapper::before {
+        content: '';
+        position: absolute;
+        left: 124px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e2e8f0;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 40px;
+    }
+
+    .timeline-date {
+        position: absolute;
+        left: -100px;
+        top: 0;
+        text-align: right;
+        width: 80px;
+    }
+
+    .timeline-date .day {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+    }
+
+    .timeline-date .month {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: 20px;
+        top: 8px;
+        width: 10px;
+        height: 10px;
+        background: #3b82f6;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 0 0 2px #3b82f6;
+        z-index: 2;
+    }
+
+    .timeline-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .timeline-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .card-header {
+        padding: 15px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dr-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dr-info i { margin-right: 5px; color: #3b82f6; }
+    .dr-info strong { font-size: 0.95rem; color: #0f172a; }
+    .dr-info small { font-size: 0.75rem; color: #64748b; }
+
+    .actions { display: flex; gap: 15px; }
+    .btn-text { font-size: 0.85rem; font-weight: 700; color: #3b82f6; text-decoration: none; }
+    .btn-icon { color: #64748b; font-size: 1.1rem; }
+    .btn-icon:hover { color: #ef4444; }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-body label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        margin-bottom: 8px;
+    }
+
+    .card-body p {
+        margin: 0 0 20px;
+        color: #334155;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .rx-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px;
+    }
+
+    .rx-list li {
+        background: #f1f5f9;
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 10px;
+    }
+
+    .med-name { font-weight: 700; color: #1e293b; }
+    .med-dose { color: #3b82f6; font-weight: 600; }
+    .med-dur { color: #64748b; font-size: 0.85rem; }
+
+    .card-footer {
+        padding: 12px 20px;
+        background: #eff6ff;
+        border-top: 1px solid #dbeafe;
+    }
+
+    .follow-up {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1d4ed8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .empty-history {
+        text-align: center;
+        padding: 80px 0;
+        color: #94a3b8;
+    }
+
+    .empty-history i { font-size: 3rem; margin-bottom: 20px; opacity: 0.3; }
+
+    @media (max-width: 600px) {
+        .timeline-wrapper { padding-left: 20px; }
+        .timeline-wrapper::before { left: 44px; }
+        .timeline-date { position: relative; left: 0; text-align: left; width: 100%; margin-bottom: 10px; padding-left: 45px; }
+        .timeline-marker { left: 40px; }
+        .history-header { flex-direction: column; text-align: center; gap: 20px; }
+        .contact-card { text-align: center; }
+    }
+</style>
+{% endblock %}

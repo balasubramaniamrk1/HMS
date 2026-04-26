@@ -40,7 +40,14 @@ def book_appointment(request):
         if request.GET.get('phone'):
             initial_data['phone'] = request.GET.get('phone')
         if request.GET.get('doctor'):
-            initial_data['doctor'] = request.GET.get('doctor')
+            doc_id = request.GET.get('doctor')
+            initial_data['doctor'] = doc_id
+            from doctors.models import Doctor
+            try:
+                doc = Doctor.objects.get(id=doc_id)
+                initial_data['department'] = doc.department.id
+            except (Doctor.DoesNotExist, ValueError):
+                pass
             
         form = AppointmentRequestForm(initial=initial_data)
     return render(request, 'appointments/appointment_form.html', {'form': form})
@@ -63,22 +70,47 @@ def staff_dashboard(request):
     show_appointments = is_doctor or is_receptionist or is_nurse or is_admin
     appointments = []
     if show_appointments:
-        appointments = AppointmentRequest.objects.all().order_by('-created_at')
+        appointments_qs = AppointmentRequest.objects.all().select_related('doctor', 'patient', 'department')
+        
+        # Privacy Filter: Doctors only see their own records (unless Admin)
+        if is_doctor and not is_admin:
+            if hasattr(request.user, 'doctor_profile'):
+                appointments_qs = appointments_qs.filter(doctor=request.user.doctor_profile)
+            else:
+                # Doctor user without a profile shouldn't see anything
+                appointments_qs = appointments_qs.none()
+                
+        appointments = appointments_qs.order_by('-created_at')
 
-    # 2. Inventory Stats (Inventory Managers)
+    # 2. Inventory & Pharmacy Stats (Visible to all Staff/Admins)
     inventory_stats = {}
-    if is_inventory_manager:
+    if is_inventory_manager or is_admin or is_receptionist or is_nurse or 'Staff' in user_groups:
         from inventory.models import Consumable, MaintenanceContract
+        from pharmacy.models import Medicine
+        from django.db.models import Sum
         
-        low_stock_count = len([c for c in Consumable.objects.all() if c.is_low_stock()])
+        # Consumables
+        low_stock_consumables = [c for c in Consumable.objects.all() if c.is_low_stock()]
         
+        # AMCs expiring in next 15 days (Higher urgency)
         today = timezone.now().date()
-        next_30 = today + timedelta(days=30)
-        expiring_amcs = MaintenanceContract.objects.filter(contract_end__range=[today, next_30]).count()
+        next_15 = today + timedelta(days=15)
+        urgent_amcs = MaintenanceContract.objects.filter(contract_end__range=[today, next_15]).select_related('equipment')
+        
+        # Pharmacy Low Stock
+        pharmacy_low_stock = []
+        medicines = Medicine.objects.annotate(total_qty=Sum('batches__quantity'))
+        for med in medicines:
+            if med.total_qty is not None and med.total_qty <= med.reorder_level:
+                pharmacy_low_stock.append(med)
         
         inventory_stats = {
-            'low_stock_count': low_stock_count,
-            'expiring_amcs': expiring_amcs,
+            'low_stock_count': len(low_stock_consumables),
+            'low_stock_items': low_stock_consumables[:5], # Show top 5
+            'urgent_amcs_count': urgent_amcs.count(),
+            'urgent_amcs': urgent_amcs,
+            'pharmacy_low_stock_count': len(pharmacy_low_stock),
+            'pharmacy_low_stock': pharmacy_low_stock[:5],
         }
 
     # --- Dynamic Dashboard Titles ---
@@ -105,7 +137,6 @@ def staff_dashboard(request):
     # Auto-create StaffProfile if missing (Temporary/Permissive measure)
     if not hasattr(request.user, 'staff_profile'):
         from staff_mgmt.models import StaffProfile
-        from django.utils import timezone
         
         # Create a basic profile
         StaffProfile.objects.create(
@@ -350,8 +381,8 @@ def reports_dashboard(request):
 
     # Get filters from request
     doctor_id = request.GET.get('doctor')
-    if current_doctor:
-        # User is a doctor, FORCE their ID
+    if current_doctor and not request.user.is_superuser:
+        # User is a doctor (and NOT an admin), FORCE their ID
         doctor_id = current_doctor.id
     
     patient_name = request.GET.get('patient_name')
@@ -359,7 +390,9 @@ def reports_dashboard(request):
     date_to = request.GET.get('date_to')
 
     # Base QuerySet
-    consultations = Consultation.objects.all().select_related('appointment', 'appointment__doctor').order_by('-consultation_date')
+    consultations = Consultation.objects.all().select_related(
+        'appointment', 'appointment__doctor', 'appointment__patient'
+    ).order_by('-consultation_date')
 
     today = timezone.now().date()
     trigger = request.GET.get('trigger')
@@ -367,7 +400,7 @@ def reports_dashboard(request):
     # Date Logic based on Trigger
     if trigger == 'doctor_change':
         # Auto-set to last 30 days
-        date_from = (today - timezone.timedelta(days=30)).strftime('%Y-%m-%d')
+        date_from = (today - timedelta(days=30)).strftime('%Y-%m-%d')
         date_to = today.strftime('%Y-%m-%d')
         # We enforce these dates for filtering regardless of what was in the URL (if any)
     elif trigger == 'filter_btn':
@@ -399,6 +432,46 @@ def reports_dashboard(request):
         
     if date_to:
         consultations = consultations.filter(consultation_date__date__lte=date_to)
+
+    # --- Analytics Data for Chart.js ---
+    from django.db.models.functions import TruncDate
+    from django.db.models import Count
+    import json
+
+    # 1. Appointment Trends (Daily volume in filtered set)
+    trends_data = (
+        consultations.annotate(date=TruncDate('consultation_date'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+    
+    chart_trends = {
+        'labels': [d['date'].strftime('%d %b') for d in trends_data],
+        'values': [d['count'] for d in trends_data]
+    }
+
+    # 2. Diagnosis Distribution (Top 5)
+    diag_data = (
+        consultations.values('diagnosis')
+        .annotate(count=Count('diagnosis'))
+        .order_by('-count')[:5]
+    )
+    chart_diagnosis = {
+        'labels': [d['diagnosis'] if d['diagnosis'] else "Unknown" for d in diag_data],
+        'values': [d['count'] for d in diag_data]
+    }
+
+    # 3. Doctor Workload
+    doc_workload_data = (
+        consultations.values('appointment__doctor__name')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    chart_workload = {
+        'labels': [d['appointment__doctor__name'] if d['appointment__doctor__name'] else "Staff" for d in doc_workload_data],
+        'values': [d['count'] for d in doc_workload_data]
+    }
 
     # --- Global Dashboard Stats Calculation ---
     from django.db.models import Count
@@ -437,12 +510,32 @@ def reports_dashboard(request):
         'selected_doctor_id': selected_doctor_id,
         'dashboard_stats': dashboard_stats,
         'current_doctor': current_doctor, # For template logic
+        
+        # Chart Data
+        'chart_trends_json': json.dumps(chart_trends),
+        'chart_diagnosis_json': json.dumps(chart_diagnosis),
+        'chart_workload_json': json.dumps(chart_workload),
     }
     return render(request, 'appointments/reports.html', context)
 @login_required
 def consultation_detail_view(request, pk):
     consultation = get_object_or_404(Consultation, pk=pk)
     return render(request, 'appointments/consultation_detail.html', {'consultation': consultation})
+
+@login_required
+def patient_history_view(request, patient_id):
+    from core.models import Patient
+    patient = get_object_or_404(Patient, patient_id=patient_id)
+    
+    # Fetch all consultations for this patient
+    consultations = Consultation.objects.filter(
+        appointment__patient=patient
+    ).select_related('appointment', 'appointment__doctor').order_by('-consultation_date')
+    
+    return render(request, 'appointments/patient_history.html', {
+        'patient': patient,
+        'consultations': consultations
+    })
 
 @login_required
 def reschedule_appointment(request, pk):

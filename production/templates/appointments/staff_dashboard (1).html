@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>{{ dashboard_title }}</h1>
+        <p>{{ dashboard_subtitle }}</p>
+    </div>
+</section>
+
+<section class="container section-padding" style="max-width: 1400px;">
+    {% if messages %}
+    <!-- Messages handled globally in base.html now -->
+    {% endif %}
+
+    <div class="row">
+        <!-- Left Column: Dynamic Content -->
+        <div class="col-lg-8">
+            {% if show_appointments %}
+            <h2 class="mb-4">Today's Appointments</h2>
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0" style="width:100%; border-collapse: collapse;">
+                        <thead style="background-color: #f8f9fa;">
+                            <tr>
+                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Patient</th>
+                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Doctor / Dept</th>
+                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Time</th>
+                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Status</th>
+                                <th style="padding:15px; border-bottom: 2px solid #e9ecef;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appt in appointments %}
+                            <tr style="border-bottom: 1px solid #f1f1f1;">
+                                <td style="padding:15px;">
+                                    <h5 style="margin:0; font-size:1rem; color:#2c3e50;">{{ appt.name }}</h5>
+                                    <small style="color:#7f8c8d;">{{ appt.phone }}</small>
+                                </td>
+                                <td style="padding:15px;">
+                                    {% if appt.doctor %}
+                                    <span style="font-weight:600; color:#2980b9;">Dr. {{ appt.doctor.name }}</span>
+                                    {% else %}
+                                    <span style="color:#27ae60;">{{ appt.department.name }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding:15px;">
+                                    {{ appt.preferred_date }}<br>
+                                    <small class="text-muted">{{ appt.preferred_time }}</small>
+                                </td>
+                                <td style="padding:15px;">
+                                    <span class="status-badge {{ appt.status }}">{{ appt.get_status_display }}</span>
+                                </td>
+                                <td style="padding:15px;">
+                                    {% if appt.status == 'pending' %}
+                                    <div class="btn-group">
+                                        <a href="{% url 'update_status' appt.pk 'confirmed' %}"
+                                            class="btn-sm btn-success shadow-sm" title="Confirm">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a href="{% url 'update_status' appt.pk 'cancelled' %}"
+                                            class="btn-sm btn-danger shadow-sm" title="Cancel">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                        <a href="{% url 'book_appointment' %}?name={{ appt.name|urlencode }}&phone={{ appt.phone|urlencode }}&doctor={{ appt.doctor.id|default:'' }}"
+                                            target="_blank" class="btn-sm btn-info shadow-sm" title="Book New Appt">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div style="color:#bdc3c7;">
+                                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                                        <p>No appointments found today.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% elif is_inventory_manager %}
+            <h2 class="mb-4">Inventory Overview</h2>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm bg-white h-100">
+                        <div class="card-body text-center p-4">
+                            <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+                            <h3 class="display-4 font-weight-bold text-dark">{{ inventory_stats.low_stock_count }}</h3>
+                            <p class="text-muted mb-3">Low Stock Items</p>
+                            <a href="{% url 'consumable_list' %}"
+                                class="btn btn-outline-danger btn-sm rounded-pill px-4">Check Stock</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm bg-white h-100">
+                        <div class="card-body text-center p-4">
+                            <i class="fas fa-file-contract text-warning fa-3x mb-3"></i>
+                            <h3 class="display-4 font-weight-bold text-dark">{{ inventory_stats.expiring_amcs }}</h3>
+                            <p class="text-muted mb-3">AMCs Expiring Soon</p>
+                            <a href="{% url 'inventory_dashboard' %}"
+                                class="btn btn-outline-warning btn-sm rounded-pill px-4">View Contracts</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm bg-primary text-white">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1 font-weight-bold">Manage Inventory</h5>
+                                <p class="mb-0 text-white-50">Access the full dashboard for equipment and vendors</p>
+                            </div>
+                            <a href="{% url 'inventory_dashboard' %}"
+                                class="btn btn-light text-primary font-weight-bold shadow-sm">
+                                Go to Dashboard <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Default View for Other Roles -->
+            <div class="jumbotron bg-white shadow-sm border-0">
+                <h2 class="display-5">Welcome, {{ staff_name }}!</h2>
+                <p class="lead">Have a productive day.</p>
+                <hr class="my-4">
+                <p>Track your work hours using the attendance widget on the right.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Attendance Widget (35%) -->
+        <div class="col-lg-4">
+            {% if request.user.staff_profile %}
+            <div class="sticky-top" style="top: 20px; z-index: 1;">
+                <!-- Sleek Widget Card -->
+                <div class="card border-0 shadow-lg attendance-card">
+                    <div class="card-body p-4">
+
+                        <!-- Profile Header (Minimalist) -->
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="avatar-circle mr-3">
+                                <span class="initials">
+                                    {{ staff_initials }}
+                                </span>
+                            </div>
+                            <div>
+                                <h5 class="mb-0 font-weight-bold text-dark">
+                                    {{ staff_name }}
+                                </h5>
+                                <small class="text-muted text-uppercase"
+                                    style="letter-spacing: 1px; font-size: 0.7rem;">
+                                    {{ staff_designation }}
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Work Hours (Hero Section) -->
+                        <div class="work-timer mb-4 text-center">
+                            <span class="d-block text-secondary text-xs font-weight-bold text-uppercase mb-2">Total
+                                Hours Today</span>
+                            <h1 class="display-4 font-weight-bold text-primary mb-0" style="letter-spacing: -1px;">
+                                {{ work_duration|default:"-- : --" }}
+                            </h1>
+                        </div>
+
+                        <!-- Times Grid -->
+                        {% if todays_attendance %}
+                        <div class="row text-center mb-4">
+                            <div class="col-6 border-right">
+                                <small class="text-muted d-block mb-1">In Time</small>
+                                <span class="h5 font-weight-bold text-dark">
+                                    {{ todays_attendance.check_in|time:"H:i" }}
+                                </span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block mb-1">Out Time</small>
+                                <span class="h5 font-weight-bold text-dark">
+                                    {% if todays_attendance.check_out %}
+                                    {{ todays_attendance.check_out|time:"H:i" }}
+                                    {% else %}
+                                    --:--
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons (Pill Shaped) -->
+                        {% if not todays_attendance.check_out %}
+                        <div class="status-indicator active mb-3 text-center">
+                            <span class="dot"></span> Currently Working
+                        </div>
+                        <form method="post" action="{% url 'check_out' %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="btn btn-warning btn-block btn-pill shadow-sm font-weight-bold py-3">
+                                Check Out
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="status-indicator completed mb-3 text-center">
+                            <span class="dot"></span> Session Ended
+                        </div>
+                        <!-- Auto-CheckIn handles return -->
+                        <button class="btn btn-light btn-block btn-pill disabled py-3" disabled>
+                            Checked Out
+                        </button>
+                        {% endif %}
+
+                        {% else %}
+                        <!-- Not Checked In State -->
+                        <div class="text-center mb-4">
+                            <div class="p-3 bg-light rounded-lg mb-3">
+                                <small class="text-muted">Start your shift to track hours.</small>
+                            </div>
+                        </div>
+                        <form method="post" action="{% url 'check_in' %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="btn btn-primary btn-block btn-pill shadow-accent font-weight-bold py-3 transition-hover">
+                                Check In Now
+                            </button>
+                        </form>
+                        {% endif %}
+
+                    </div>
+                    <!-- Footer Link -->
+                    <div class="card-footer bg-white border-0 text-center pb-4">
+                        <a href="{% url 'staff_attendance' %}" class="small text-muted font-weight-600 link-hover">
+                            View Attendance History
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Sleek Widget Styles */
+    .attendance-card {
+        border-radius: 20px;
+        overflow: hidden;
+        background: #fff;
+        transition: transform 0.2s;
+    }
+
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        background: #f0f2f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+    }
+
+    .initials {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .btn-pill {
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+
+    .shadow-accent {
+        box-shadow: 0 4px 15px rgba(52, 144, 220, 0.3);
+    }
+
+    .transition-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 144, 220, 0.4);
+    }
+
+    .status-indicator {
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+    }
+
+    .status-indicator.active {
+        color: #27ae60;
+        background: rgba(39, 174, 96, 0.1);
+    }
+
+    .status-indicator.completed {
+        color: #7f8c8d;
+        background: #f8f9fa;
+    }
+
+    .dot {
+        height: 8px;
+        width: 8px;
+        background-color: currentColor;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    .link-hover:hover {
+        color: #333 !important;
+        text-decoration: underline;
+    }
+
+    /* Grid helpers */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+
+    .col-lg-8 {
+        flex: 0 0 65%;
+        max-width: 65%;
+        padding: 0 15px;
+    }
+
+    .col-lg-4 {
+        flex: 0 0 35%;
+        max-width: 35%;
+        padding: 0 15px;
+    }
+
+    @media (max-width: 992px) {
+
+        .col-lg-8,
+        .col-lg-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    /* Other Styles */
+    .page-header {
+        background: #333;
+        color: white;
+        padding: 30px 0;
+        text-align: center;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-badge.pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-badge.confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.completed {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-badge.cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        border-radius: 6px;
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}

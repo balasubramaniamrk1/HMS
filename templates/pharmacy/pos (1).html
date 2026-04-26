@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-4"><i class="fas fa-cash-register mr-2"></i>Pharmacy POS</h2>
+
+    <div class="row">
+        <!-- Product Selection -->
+        <div class="col-md-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <input type="text" id="tosearch" class="form-control" placeholder="Search medicines...">
+                </div>
+                <div class="card-body overflow-auto" style="height: 60vh;">
+                    <table class="table table-hover" id="medicineTable">
+                        <thead>
+                            <tr>
+                                <th>Medicine</th>
+                                <th>Batch</th>
+                                <th>Expiry</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicineTableBody">
+                            <!-- Populated via AJAX -->
+                            <tr>
+                                <td colspan="6" class="text-center text-muted mt-3">Start typing to search medicines...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Section -->
+        <div class="col-md-5">
+            <div class="card shadow-sm h-100 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Current Sale</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <!-- JS Error Container -->
+                    <div id="posError" class="alert alert-danger" style="display: none;"></div>
+
+                    {% if unavailable_items %}
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-circle"></i> Unavailable Prescribed Items:</h6>
+                        <ul class="mb-0 pl-3">
+                            {% for item in unavailable_items %}
+                            <li>{{ item.name }} <small class="text-muted">({{ item.reason }})</small></li>
+                            {% endfor %}
+                        </ul>
+                        <small class="text-muted mt-2 d-block">These items will NOT be included in the invoice.</small>
+                    </div>
+                    {% endif %}
+
+                    <div class="table-responsive flex-grow-1" style="height: 40vh; overflow-y: auto;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartBody">
+                                <!-- Cart items go here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-auto border-top pt-3">
+                        <div class="d-flex justify-content-between h4">
+                            <span>Total:</span>
+                            <span id="cartTotal">₹0.00</span>
+                        </div>
+
+                        <form method="post" id="posForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="cart_data" id="cartDataInput">
+                            <input type="hidden" name="consultation_id" value="{{ consultation.id|default:'' }}">
+                            <input type="hidden" name="admission_id" value="{{ admission.id|default:'' }}">
+                            <input type="hidden" name="doctor_id" value="{{ doctor.id|default:'' }}">
+                            <input type="hidden" name="patient_name" value="{{ patient_name|default:'' }}">
+
+                            <button type="button" onclick="submitSale()" class="btn btn-success btn-block btn-lg mt-3">
+                                <i class="fas fa-check-circle mr-2"></i>Complete Sale
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let cart = {};
+
+    // Initialize cart from server context if available
+    const prefillData = {{ prefill_cart| safe }};
+    if (prefillData && prefillData.length > 0) {
+        prefillData.forEach(item => {
+            cart[item.id] = item;
+        });
+    }
+
+    // On load
+    document.addEventListener('DOMContentLoaded', function () {
+        renderCart();
+    });
+
+    // AJAX Search
+    const searchInput = document.getElementById('tosearch');
+    const medicineTableBody = document.getElementById('medicineTableBody');
+    let searchTimeout = null;
+    let currentFocus = -1;
+
+    searchInput.addEventListener('input', function () {
+        const term = this.value.trim();
+        currentFocus = -1; // Reset focus on new search
+
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (term.length < 1) {
+                medicineTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted mt-3">Start typing to search medicines...</td></tr>';
+                return;
+            }
+
+            fetch(`{% url 'pharmacy:pos' %}?term=${encodeURIComponent(term)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    medicineTableBody.innerHTML = '';
+                    if (data.length === 0) {
+                        medicineTableBody.innerHTML = '<tr><td colspan="6" class="text-center">No results found.</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-name', item.name); // For keyboard selection reference
+                        tr.innerHTML = `
+                        <td><strong>${item.name}</strong><br><small class="text-muted">${item.generic || ''}</small></td>
+                        <td>${item.batch}</td>
+                        <td>${item.expiry}</td>
+                        <td>₹${item.price.toFixed(2)}</td>
+                        <td>${item.stock}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary add-to-cart-btn" 
+                                data-id="${item.id}" data-name="${item.name}" 
+                                data-batch="${item.batch}" data-price="${item.price}" 
+                                data-max="${item.stock}">Add</button>
+                        </td>
+                    `;
+                        medicineTableBody.appendChild(tr);
+                    });
+                });
+        }, 300);
+    });
+
+    // Keyboard Navigation for POS
+    searchInput.addEventListener('keydown', function (e) {
+        let rows = medicineTableBody.getElementsByTagName('tr');
+        // Filter out non-result rows (like loading/empty messages) if needed, 
+        // but simplest is just check if they have add-btn or data attributes
+
+        if (e.key === 'ArrowDown') {
+            currentFocus++;
+            addActive(rows);
+        } else if (e.key === 'ArrowUp') {
+            currentFocus--;
+            addActive(rows);
+        } else if (e.key === 'Enter' || e.key === 'Tab') {
+            if (currentFocus > -1 && rows[currentFocus]) {
+                const btn = rows[currentFocus].querySelector('.add-to-cart-btn');
+                if (btn) {
+                    btn.click();
+                    // Optional: Clear search after selection?
+                    // searchInput.value = ''; 
+                    // medicineTableBody.innerHTML = ...;
+                    e.preventDefault();
+                }
+            }
+        }
+    });
+
+    function addActive(x) {
+        if (!x) return false;
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        x[currentFocus].classList.add("table-active"); // Bootstrap class for highlighting
+        x[currentFocus].scrollIntoView({ block: "nearest" });
+    }
+
+    function removeActive(x) {
+        for (let i = 0; i < x.length; i++) {
+            x[i].classList.remove("table-active");
+        }
+    }
+
+    // Event Delegation for Add Buttons (since elements are dynamic)
+    document.getElementById('medicineTableBody').addEventListener('click', function (e) {
+        if (e.target.classList.contains('add-to-cart-btn')) {
+            const btn = e.target;
+            const id = btn.dataset.id;
+
+            if (cart[id]) {
+                if (cart[id].quantity < parseInt(btn.dataset.max)) {
+                    cart[id].quantity++;
+                } else {
+                    showError('Max stock reached for this batch!');
+                }
+            } else {
+                cart[id] = {
+                    id: id,
+                    name: btn.dataset.name,
+                    batch: btn.dataset.batch,
+                    price: parseFloat(btn.dataset.price),
+                    quantity: 1,
+                    max: parseInt(btn.dataset.max)
+                };
+            }
+            renderCart();
+        }
+    });
+
+    function renderCart() {
+        const tbody = document.getElementById('cartBody');
+        tbody.innerHTML = '';
+        let total = 0;
+
+        for (const [id, item] of Object.entries(cart)) {
+            const lineTotal = item.price * item.quantity;
+            total += lineTotal;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    ${item.name}<br>
+                    <small class="text-muted">${item.batch}</small>
+                </td>
+                <td>
+                    <input type="number" min="1" max="${item.max}" value="${item.quantity}" 
+                           class="form-control form-control-sm" style="width: 60px"
+                           onchange="updateQty(${id}, this.value)">
+                </td>
+                <td>₹${item.price}</td>
+                <td>₹${lineTotal.toFixed(2)}</td>
+                <td><button class="btn btn-sm btn-danger" onclick="removeFromCart(${id})">&times;</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        document.getElementById('cartTotal').textContent = '₹' + total.toFixed(2);
+    }
+
+    function removeFromCart(id) {
+        delete cart[id];
+        renderCart();
+    }
+
+    function updateQty(id, qty) {
+        qty = parseInt(qty);
+        if (qty > 0 && qty <= cart[id].max) {
+            cart[id].quantity = qty;
+        } else {
+            showError('Invalid quantity or exceeds stock limit.');
+            renderCart(); // Reset view
+        }
+        renderCart();
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('posError');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    function submitSale() {
+        if (Object.keys(cart).length === 0) {
+            showError('Cart is empty! Cannot complete sale.');
+            return;
+        }
+
+        // Convert cart object to array
+        const cartArray = Object.values(cart).map(item => ({
+            batch_id: item.id,
+            quantity: item.quantity
+        }));
+
+        document.getElementById('cartDataInput').value = JSON.stringify(cartArray);
+        document.getElementById('posForm').submit();
+    }
+</script>
+{% endblock %}

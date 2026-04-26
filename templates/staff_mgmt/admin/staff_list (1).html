@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Staff{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Manage Staff</h3>
+        <a href="{% url 'staff_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Staff</a>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Shift</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for person in staff_members %}
+                        <tr>
+                            <td>{{ person.employee_id }}</td>
+                            <td>{{ person.user.get_full_name }}</td>
+                            <td>{{ person.department }}</td>
+                            <td>{{ person.designation }}</td>
+                            <td>
+                                {% if person.shift %}
+                                {{ person.shift.name }} ({{ person.shift.start_time|time:"H:i" }} - {{ person.shift.end_time|time:"H:i" }})
+                                {% else %}
+                                <span class="text-muted">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'staff_edit' person.pk %}"
+                                    class="btn btn-sm btn-outline-primary">Edit</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">No staff members found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
