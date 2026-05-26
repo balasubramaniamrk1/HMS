@@ -12,9 +12,9 @@
             <p>Experience the future of healthcare with our advanced multi-speciality facilities and expert medical
                 professionals.</p>
             <div class="hero-btns">
-                <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg">Book Appointment <i
+                <a href="{% url 'book_appointment' %}" class="btn-hero-primary">Book Appointment <i
                         class="fas fa-arrow-right ml-2"></i></a>
-                <a href="{% url 'doctor_list' %}" class="btn btn-outline-primary btn-lg ml-3">Find Specialist</a>
+                <a href="{% url 'doctor_list' %}" class="btn-hero-secondary">Find Specialist</a>
             </div>
 
             <div class="stats-row">
@@ -204,6 +204,95 @@
 
     .highlight-text {
         color: var(--secondary-color);
+    }
+
+    .hero-btns {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 35px;
+        margin-bottom: 35px;
+        flex-wrap: wrap;
+    }
+
+    /* Ultra-Premium Hero Primary Button */
+    .btn-hero-primary {
+        background: linear-gradient(135deg, var(--secondary-color) 0%, #0c8c8b 100%);
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: 0.3px;
+        padding: 16px 32px;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 8px 20px -6px rgba(14, 165, 164, 0.4), 0 4px 10px -4px rgba(14, 165, 164, 0.3);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        text-decoration: none !important;
+    }
+
+    .btn-hero-primary:hover {
+        background: linear-gradient(135deg, #11bebd 0%, #0ea5a4 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px -6px rgba(14, 165, 164, 0.5), 0 6px 14px -4px rgba(14, 165, 164, 0.4);
+    }
+
+    .btn-hero-primary:active {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px -6px rgba(14, 165, 164, 0.4);
+    }
+
+    .btn-hero-primary i {
+        font-size: 0.95rem;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-hero-primary:hover i {
+        transform: translateX(5px);
+    }
+
+    /* Ultra-Premium Hero Secondary Button */
+    .btn-hero-secondary {
+        background: #ffffff;
+        color: var(--primary-color) !important;
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: 0.3px;
+        padding: 14px 30px;
+        border-radius: 12px;
+        border: 2px solid var(--brand-border);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        text-decoration: none !important;
+    }
+
+    .btn-hero-secondary:hover {
+        background: #f8fafc;
+        border-color: var(--primary-color);
+        color: var(--primary-color) !important;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px -8px rgba(30, 58, 138, 0.15);
+    }
+
+    .btn-hero-secondary:active {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 10px -8px rgba(30, 58, 138, 0.15);
+    }
+
+    @media (max-width: 576px) {
+        .hero-btns {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .btn-hero-primary, .btn-hero-secondary {
+            width: 100%;
+        }
     }
 
     .hero-modern p {
