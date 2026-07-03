@@ -1,0 +1,158 @@
+/* Dedicated Login Page Styles */
+
+/* Reset & Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    /* Default sans for body, specific headers use Serif */
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    /* Prevent scrollbars */
+}
+
+/* Container */
+.login-container {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Gradient from User Image: Vivid Blue to Purple */
+    background: linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);
+    /* Fallback Blue Gradient */
+    background: linear-gradient(to bottom right, #4158D0, #C850C0, #FFCC70);
+    /* Vibrant Gradient variant */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Deep Blue Purple */
+
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+/* Card */
+.login-form-card {
+    background: #ffffff;
+    padding: 45px 55px;
+    border-radius: 8px;
+    /* Slightly sharper corners like the image */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+
+/* Header */
+.login-header-text {
+    margin-bottom: 35px;
+    border-bottom: 1px solid #eeeeee;
+    padding-bottom: 15px;
+}
+
+.login-header-text h2 {
+    font-family: 'Times New Roman', Times, serif;
+    /* Times New Roman as requested */
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 25px;
+    text-align: left;
+    position: relative;
+}
+
+/* Inputs - Underlined Style */
+.form-group input {
+    width: 100%;
+    padding: 12px 5px;
+    border: none;
+    border-bottom: 1px solid #cccccc;
+    border-radius: 0;
+    font-size: 0.95rem;
+    color: #555555;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-bottom: 1px solid #764ba2;
+    /* Purple highlight */
+}
+
+.form-group input::placeholder {
+    color: #999999;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+/* Button - Pill Shape */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    border-radius: 50px;
+    /* Full pill shape */
+    background: #e0e0e0;
+    color: #333333;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-login:hover {
+    background: #d4d4d4;
+    transform: translateY(-1px);
+}
+
+/* Links */
+.forgot-password {
+    text-align: left;
+    margin-top: -10px;
+}
+
+.forgot-password a {
+    color: #aaaaaa;
+    font-size: 0.8rem;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-footer-text {
+    margin-top: 35px;
+    font-size: 0.85rem;
+    color: #888888;
+}
+
+.login-footer-text a {
+    color: #764ba2;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Alerts */
+.alert {
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
