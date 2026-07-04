@@ -40,15 +40,6 @@
             background-color: #eff6ff;
             color: var(--primary-color);
         }
-        .nav-link.dropdown-toggle::after {
-            content: '\f107';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            margin-left: 8px;
-            font-size: 0.8rem;
-            vertical-align: middle;
-            border: none;
-        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -64,7 +55,7 @@
                     <a href="{% url 'about' %}" class="nav-link">About</a>
                     <a href="{% url 'department_list' %}" class="nav-link">Center of Excellence</a>
                     <div class="dropdown">
-                        <a href="{% url 'doctor_list' %}" class="nav-link dropdown-toggle">Doctors</a>
+                        <a href="/#trusted-experts" class="nav-link">Doctors <i class="fas fa-chevron-down ml-1" style="font-size: 0.8em;"></i></a>
                         <div class="dropdown-content">
                             {% for dept in nav_departments %}
                             <a href="{% url 'doctor_list' %}?speciality={{ dept.slug }}"
