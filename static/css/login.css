@@ -23,13 +23,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Gradient from User Image: Vivid Blue to Purple */
-    background: linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);
-    /* Fallback Blue Gradient */
-    background: linear-gradient(to bottom right, #4158D0, #C850C0, #FFCC70);
-    /* Vibrant Gradient variant */
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    /* Deep Blue Purple */
+    /* Requested Background Color */
+    background-color: #FFDBBB;
 
     position: fixed;
     top: 0;
@@ -38,7 +33,8 @@ body {
 
 /* Card */
 .login-form-card {
-    background: #ffffff;
+    background: #1E3A8A;
+    color: #ffffff;
     padding: 45px 55px;
     border-radius: 8px;
     /* Slightly sharper corners like the image */
@@ -60,7 +56,7 @@ body {
     /* Times New Roman as requested */
     font-size: 2.2rem;
     font-weight: 700;
-    color: #2c3e50;
+    color: #ffffff;
     letter-spacing: 0.5px;
     margin: 0;
 }
@@ -77,22 +73,22 @@ body {
     width: 100%;
     padding: 12px 5px;
     border: none;
-    border-bottom: 1px solid #cccccc;
+    border-bottom: 1px solid #4a6fa5;
     border-radius: 0;
     font-size: 0.95rem;
-    color: #555555;
+    color: #ffffff;
     background: transparent;
     transition: all 0.3s ease;
 }
 
 .form-group input:focus {
     outline: none;
-    border-bottom: 1px solid #764ba2;
-    /* Purple highlight */
+    border-bottom: 1px solid #93c5fd;
+    /* Light blue highlight */
 }
 
 .form-group input::placeholder {
-    color: #999999;
+    color: #93c5fd;
     font-size: 0.9rem;
     font-weight: 400;
 }
@@ -103,20 +99,20 @@ body {
     padding: 12px;
     border-radius: 50px;
     /* Full pill shape */
-    background: #e0e0e0;
-    color: #333333;
+    background: #ffffff;
+    color: #1E3A8A;
     font-weight: 700;
     font-size: 1rem;
     border: none;
     cursor: pointer;
     transition: all 0.2s;
     margin-top: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-login:hover {
-    background: #d4d4d4;
-    transform: translateY(-1px);
+    background: #f1f5f9;
+    transform: translateY(-2px);
 }
 
 /* Links */
@@ -126,7 +122,7 @@ body {
 }
 
 .forgot-password a {
-    color: #aaaaaa;
+    color: #93c5fd;
     font-size: 0.8rem;
     text-decoration: none;
     font-weight: 500;
@@ -135,11 +131,11 @@ body {
 .login-footer-text {
     margin-top: 35px;
     font-size: 0.85rem;
-    color: #888888;
+    color: #bfdbfe;
 }
 
 .login-footer-text a {
-    color: #764ba2;
+    color: #ffffff;
     text-decoration: none;
     font-weight: 600;
 }

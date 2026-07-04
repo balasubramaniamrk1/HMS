@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load crispy_forms_tags %}
 {% block title %}Add New Medicine{% endblock %}
 
 {% block content %}
@@ -21,65 +21,55 @@
                         {% csrf_token %}
 
                         <div class="form-row">
-                            <div class="form-group col-md-12">
-                                <label>Barcode / UPC <small class="text-muted">(Scan to auto-fill)</small></label>
-                                {{ form.barcode }}
-                                {{ form.barcode.errors }}
+                            <div class="col-md-12">
+                                {{ form.barcode|as_crispy_field }}
+                                <small class="text-muted">(Scan to auto-fill)</small>
                             </div>
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Brand Name</label>
-                                {{ form.name }}
-                                {{ form.name.errors }}
+                            <div class="col-md-6">
+                                {{ form.name|as_crispy_field }}
                             </div>
-                            <div class="form-group col-md-6">
-                                <label>Generic Name</label>
-                                {{ form.generic_name }}
-                                {{ form.generic_name.errors }}
+                            <div class="col-md-6">
+                                {{ form.generic_name|as_crispy_field }}
                             </div>
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Category</label>
-                                {{ form.category }}
+                            <div class="col-md-6">
+                                {{ form.category|as_crispy_field }}
                                 <small class="form-text text-muted">
                                     Need a new category? Contact Admin or use <a
                                         href="/admin/pharmacy/medicinecategory/add/" target="_blank">Admin Panel</a>.
                                 </small>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label>Schedule Type</label>
-                                {{ form.schedule_type }}
+                            <div class="col-md-6">
+                                {{ form.schedule_type|as_crispy_field }}
                             </div>
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Manufacturer</label>
-                                {{ form.manufacturer }}
+                            <div class="col-md-6">
+                                {{ form.manufacturer|as_crispy_field }}
                             </div>
-                            <div class="form-group col-md-6">
-                                <label>Dosage Form (e.g. Tablet, Syrup)</label>
-                                {{ form.dosage_form }}
+                            <div class="col-md-6">
+                                {{ form.dosage_form|as_crispy_field }}
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Description</label>
-                            {{ form.description }}
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Reorder Level (Alert Threshold)</label>
-                                {{ form.reorder_level }}
+                            <div class="col-md-12">
+                                {{ form.description|as_crispy_field }}
                             </div>
-                            <div class="form-group col-md-6">
-                                <label>Tax Rate (%)</label>
-                                {{ form.tax }}
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                {{ form.reorder_level|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.tax|as_crispy_field }}
                             </div>
                         </div>
 

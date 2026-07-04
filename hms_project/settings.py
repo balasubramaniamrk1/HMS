@@ -73,7 +73,14 @@ INSTALLED_APPS = [
     'pharmacy',
     'billing',
     'admissions',
+
+    # Third-party Apps
+    'crispy_forms',
+    'crispy_bootstrap4',
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
