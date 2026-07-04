@@ -54,21 +54,7 @@
                     <a href="/" class="nav-link">Home</a>
                     <a href="{% url 'about' %}" class="nav-link">About</a>
                     <a href="{% url 'department_list' %}" class="nav-link">Center of Excellence</a>
-                    <div class="dropdown">
-                        <a href="/#trusted-experts" class="nav-link">Doctors <i class="fas fa-chevron-down ml-1" style="font-size: 0.8em;"></i></a>
-                        <div class="dropdown-content">
-                            {% for dept in nav_departments %}
-                            <a href="{% url 'doctor_list' %}?speciality={{ dept.slug }}"
-                                class="dropdown-header font-weight-bold"
-                                style="color: var(--primary-color); background: #f8f9fa; pointer-events: none;">{{ dept.name }}</a>
-                            {% for doctor in dept.doctors.all %}
-                            <a href="{% url 'doctor_detail' doctor.slug %}" style="padding-left: 30px;">{{ doctor.name }}</a>
-                            {% endfor %}
-                            {% endfor %}
-                            <div class="dropdown-divider"></div>
-                            <a href="{% url 'doctor_list' %}" class="font-weight-bold text-center">View All Specialists</a>
-                        </div>
-                    </div>
+                    <a href="/#trusted-experts" class="nav-link">Doctors</a>
                     <a href="{% url 'package_list' %}" class="nav-link">Packages</a>
 
                     {% if not user.is_authenticated %}
