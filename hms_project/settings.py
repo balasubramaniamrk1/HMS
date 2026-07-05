@@ -41,12 +41,16 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_
     ".vercel.app",   # covers all Vercel preview + production URLs
     "localhost",
     "127.0.0.1",
+    www.nexorbittech.com,
+    nexorbittech.com
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     "https://*.vercel.app",
+    "https://www.nexorbittech.com",
+    "https://nexorbittech.com",
 ]
 
 
